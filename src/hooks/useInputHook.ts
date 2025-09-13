@@ -287,13 +287,20 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
         });
 
         // Then update input value based on new country
+        const newDialCodeWithSpace = `${dialCode} `;
         if (!hideDialCode) {
-          onChange(`${dialCode} `);
+          onChange(newDialCodeWithSpace);
         }
 
         // Focus input after state updates
         setTimeout(() => {
-          inputRef.current?.focus();
+          const input = inputRef.current;
+          if (input) {
+            input.focus();
+            // Place cursor at the end of the dial code
+            const pos = newDialCodeWithSpace.length;
+            input.setSelectionRange(pos, pos);
+          }
         }, 0);
 
         if (onChangeSelect) onChangeSelect(e);

@@ -1,25 +1,15 @@
-// vite.config.ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
 import path from "path";
 
 export default defineConfig({
-  root: "example",
-  plugins: [
-    react(),
-    dts({ insertTypesEntry: true }), // generates index.d.ts
-  ],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
+  plugins: [react(), dts({ insertTypesEntry: true })],
   build: {
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
       name: "react-intl-phone-username-input",
-      fileName: (format) => `index.${format}.js`, // generates index.es.js
+      fileName: (format) => `index.${format}.js`,
       formats: ["es", "cjs"],
     },
     rollupOptions: {
@@ -30,6 +20,11 @@ export default defineConfig({
           "react-dom": "ReactDOM",
         },
       },
+    },
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });

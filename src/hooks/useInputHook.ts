@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import { flushSync } from "react-dom";
 import { AsYouType, parsePhoneNumberFromString } from "libphonenumber-js";
 import { NUMBER_REGEX, NUMBER_REGEX_WITH_PLUS } from "@/assets/constants";
 import { countryList } from "@/assets/countryList";
@@ -23,6 +22,7 @@ import { buildCountryMap, getMovedCountries } from "@/helpers/helpers";
 let globalCountryMap: Record<string, any> | null = null;
 
 const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
+  // Destructure props for clarity
   const {
     mode,
     multiCountry,
@@ -47,10 +47,19 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
     return globalCountryMap;
   }, []);
 
-  // Calculate default values directly to avoid useState dependency issues
-  const defaultCode: string = defaultCountry ?? preferredCountries?.[0] ?? "US";
-  const defaultDialCode: string = countryMap[defaultCode]?.dial_code ?? "+1";
-  const defaultFlag: string = countryMap[defaultCode]?.image ?? "/4x3/us.svg";
+  // Memoize default country code, dial code, and flag for performance
+  const defaultCode: string = useMemo(
+    () => defaultCountry ?? preferredCountries?.[0],
+    [defaultCountry, preferredCountries]
+  );
+  const defaultDialCode: string = useMemo(
+    () => countryMap[defaultCode]?.dial_code,
+    [countryMap, defaultCode]
+  );
+  const defaultFlag: string = useMemo(
+    () => countryMap[defaultCode]?.image,
+    [countryMap, defaultCode]
+  );
 
   // Initialize state with fallback values to ensure consistency
   const [countryDetails, setCountryDetails] = useState<CountryState>(() => ({
@@ -89,15 +98,23 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
     ? true
     : NUMBER_REGEX.test(number);
 
+  // Use useCallback for setCountryDetails in useEffect to avoid unnecessary re-renders
+  const updateCountryDetails = useCallback(
+    (code: string) => {
+      setCountryDetails({
+        presentDialCode: countryMap[code]?.dial_code,
+        code,
+        flag: countryMap[code]?.image,
+      });
+    },
+    [countryMap]
+  );
+
   useEffect(() => {
     if (defaultCode !== countryDetails.code) {
-      setCountryDetails({
-        presentDialCode: countryMap[defaultCode]?.dial_code,
-        code: defaultCode,
-        flag: countryMap[defaultCode]?.image,
-      });
+      updateCountryDetails(defaultCode);
     }
-  }, [defaultCode]);
+  }, [defaultCode, countryDetails.code, updateCountryDetails]);
 
   const { max } = useMemo(
     () => getPhoneNoLength(isNumber, countryDetails?.code),

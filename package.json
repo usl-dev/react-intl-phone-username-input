@@ -16,10 +16,10 @@
     }
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "start": "vite preview"
+    "dev": "vite --config vite.example.config.ts",
+    "build": "vite build",
+    "build:example": "vite build --config vite.example.config.ts",
+    "preview": "vite preview --config vite.example.config.ts"
   },
   "dependencies": {
     "informed": "^4.64.2"

@@ -13,7 +13,6 @@
     "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references
     "skipLibCheck": true, // Skip type checking of declaration files
     "isolatedModules": true, // Ensure each file can be safely transpiled
-    "baseUrl": "./", // Base directory to resolve non-absolute module names
     "paths": {
       // Mapping of module import paths
       "@/*": ["./src/*"]

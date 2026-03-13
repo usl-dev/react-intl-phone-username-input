@@ -24,12 +24,17 @@ export const getMovedCountries = (
   preferred?: string[]
 ): Country[] => {
   const highlightSet = new Set(highlight);
+  const preferredSet = new Set(preferred);
 
   // Case 1: Only preferred is given
   if (preferred?.length && !highlight?.length) {
-    return preferred
+    const preferredCountries = preferred
       .map((code) => countryMap[code])
       .filter(Boolean) as Country[];
+
+    const rest = countryList.filter((country) => !preferredSet.has(country.value));
+
+    return [...preferredCountries, ...rest];
   }
 
   // Case 2: Highlight is given
@@ -41,11 +46,20 @@ export const getMovedCountries = (
     let rest: Country[];
 
     if (preferred?.length) {
-      // If preferred is present, remove duplicates from highlight
-      rest = preferred
+      const preferredCountries = preferred
         .filter((code) => !highlightSet.has(code))
         .map((code) => countryMap[code])
         .filter(Boolean) as Country[];
+
+      const excludedCodes = new Set([
+        ...highlightSet,
+        ...preferredCountries.map((country) => country.value),
+      ]);
+
+      rest = [
+        ...preferredCountries,
+        ...countryList.filter((country) => !excludedCodes.has(country.value)),
+      ];
     } else {
       // Use full list if no preferred
       rest = countryList.filter((c) => !highlightSet.has(c.value));

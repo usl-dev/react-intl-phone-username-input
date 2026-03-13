@@ -1,5 +1,4 @@
-export { default as parsePhoneNumber } from "libphonenumber-js/mobile/examples";
-export { default as examples } from "libphonenumber-js";
+export { default as examples } from "libphonenumber-js/mobile/examples";
 
 export {
   isPossiblePhoneNumber,
@@ -7,6 +6,7 @@ export {
   validatePhoneNumberLength,
   AsYouType,
   findPhoneNumbersInText,
+  parsePhoneNumber,
   parsePhoneNumberWithError,
   ParseError,
   getExampleNumber,

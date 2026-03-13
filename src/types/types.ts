@@ -1,33 +1,24 @@
-/** Supported pass-through input attributes (aligned with cleanProps allowlist). */
-type InputPassthroughProps = Partial<
-  Pick<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    | "placeholder"
-    | "disabled"
-    | "required"
-    | "name"
-    | "id"
-    | "autoComplete"
-    | "autoFocus"
-    | "tabIndex"
-    | "maxLength"
-    | "minLength"
-    | "size"
-    | "form"
-    | "aria-label"
-    | "aria-labelledby"
-    | "aria-describedby"
-    | "aria-invalid"
-    | "aria-required"
-    | "aria-disabled"
-    | "style"
-  >
+type InputPassthroughProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "defaultValue" | "max" | "min" | "onChange" | "type" | "value"
 >;
+
+export type Mode = "phone" | "hybrid";
+export type Direction = "ltr" | "rtl";
+export type CountrySelectSource = "custom-select" | "native-select";
+
+export type CountrySelectChange = {
+  countryCode: string;
+  dialCode: string;
+  label?: string;
+  name?: string;
+  source: CountrySelectSource;
+};
 
 export type IntlPhoneUsernameInputProps = InputPassthroughProps & {
   value: string;
   onChange: (value: string) => void;
-  onChangeSelect?: (e: SelectEvent) => void;
+  onChangeSelect?: (change: CountrySelectChange) => void;
   selectFieldName?: string;
   options?: Options;
   /** Class name applied to the root wrapper (recommended for layout/overrides). */
@@ -41,14 +32,15 @@ export type IntlPhoneUsernameInputProps = InputPassthroughProps & {
 export type CustomSelectProps = {
   moveKeyToTop: Country[];
   countryCode: string;
-  handleChangeSelect: (e: SelectEvent) => void;
+  handleChangeSelect: (change: CountrySelectChange) => void;
   selectFieldName?: string;
   showFlag?: boolean;
   showDialCode?: boolean;
   customArrowIcon?: React.ReactNode;
-  direction?: string;
+  direction?: Direction;
   enableSearch?: boolean;
   searchPlaceholder?: string;
+  flagBaseUrl?: string;
   className?: {
     [key: string]: string;
   };
@@ -57,10 +49,11 @@ export type CustomSelectProps = {
 export type HtmlSelectProps = {
   moveKeyToTop: Country[];
   countryCode: string;
-  handleChangeSelect: (e: SelectEvent) => void;
+  handleChangeSelect: (change: CountrySelectChange) => void;
   selectFieldName?: string;
   customArrowIcon?: React.ReactNode;
-  direction?: string;
+  direction?: Direction;
+  flagBaseUrl?: string;
   className?: {
     [key: string]: string;
   };
@@ -71,7 +64,8 @@ export type FlagProps = {
   /** Optional label for img alt (avoids loading full country list when passed from parent). */
   label?: string;
   customSelect?: boolean;
-  direction?: string;
+  direction?: Direction;
+  flagBaseUrl?: string;
   className?: string;
   /** Smaller flag when used in custom select trigger/dropdown */
   size?: "sm" | "md";
@@ -79,11 +73,11 @@ export type FlagProps = {
 
 export type InputFieldProps = InputPassthroughProps & {
   handleInputChange: (e: InputEvent) => void;
-  inputRef: RefType;
+  inputRef: React.Ref<HTMLInputElement>;
   handleClick: (e: ClickEvent) => void;
   multiCountry?: boolean;
   inputValue: string;
-  direction?: string;
+  direction?: Direction;
   phoneMode: boolean;
   isNumber: boolean;
   className?: string;
@@ -98,23 +92,24 @@ type CustomSelectConfig = {
 };
 
 export type Options = {
-  mode?: string;
-  format?: boolean; // New prop to enable/disable phone number formatting
+  mode?: Mode;
+  format?: boolean;
   customSelect?: CustomSelectConfig;
   enableFlag?: boolean;
   multiCountry?: boolean;
-  defaultCountry: string;
+  defaultCountry?: string;
   preferredCountries?: string[];
-  highLightCountries?: string[];
+  highlightCountries?: string[];
   customArrowIcon?: React.ReactNode;
-  direction?: string;
+  direction?: Direction;
   enforceCustomSelect?: boolean;
   enforceHtmlSelect?: boolean;
+  flagBaseUrl?: string;
   classes?: Classes;
-  hideDialCode?: boolean; // New prop to hide dial code
+  hideDialCode?: boolean;
 };
 
-interface Classes {
+export interface Classes {
   [key: string]: string | Classes;
 }
 
@@ -128,14 +123,14 @@ export type Country = {
 export type CountryState = {
   presentDialCode: string;
   code: string;
-  flag: string;
   label?: string;
 };
 
 export type ExtendedOptions = Options & {
   value: string;
   onChange: (value: string) => void;
-  onChangeSelect?: (e: SelectEvent) => void;
+  onChangeSelect?: (change: CountrySelectChange) => void;
+  selectFieldName?: string;
 };
 
 export type UseInputHookReturn = {
@@ -143,7 +138,7 @@ export type UseInputHookReturn = {
   handleInputChange: (e: InputEvent) => void;
   inputRef: RefType;
   handleClick: (e: ClickEvent) => void;
-  handleChangeSelect: (e: SelectEvent) => void;
+  handleChangeSelect: (change: CountrySelectChange) => void;
   moveKeyToTop: Country[];
   inputValue: string;
   isNumber: boolean;

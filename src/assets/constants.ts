@@ -13,6 +13,7 @@ export const COUNTRY_SELECT_TYPE = "native";
 export const HIDE_DIAL_CODE = false;
 export const SELECT_FIELD_NAME = "country_select";
 export const DEFAULT_BREAKPOINT = 768; // px
+export const DEFAULT_FLAG_BASE_URL = "https://flagcdn.com";
 
 export const NUMBER_REGEX = /^\d+$/;
 // export const NUMBER_REGEX = /^\s*\d+(\s+\d+)*\s*$/;

@@ -1,56 +1,7 @@
 import parsePhoneNumberFromString, {
   AsYouType,
   CountryCode,
-  getExampleNumber,
 } from "libphonenumber-js";
-import examples from "libphonenumber-js/mobile/examples";
-
-type PhoneNoLength = {
-  min: number | null;
-  max: number | null;
-};
-
-/**
- * Given a country code, returns the minimum and maximum length
- * of the phone number in that country.
- *
- * @param {boolean} isNumber - Whether the input is a phone number.
- * @param {string} code - The country code.
- *
- * @returns {PhoneNoLength} - An object with min and max, or
- * null if not found.
- */
-
-export const getPhoneNoLength = (
-  isNumber: boolean,
-  code: string
-): PhoneNoLength => {
-  if (isNumber && code) {
-    try {
-      // Ensure countryCode is a valid CountryCode
-      const country = code as CountryCode;
-
-      // Get example number
-      const exampleNumber = getExampleNumber(country, examples);
-
-      // Ensure exampleNumber is valid
-      const parsedNumber = exampleNumber?.number
-        ? parsePhoneNumberFromString(exampleNumber.number, country)
-        : null;
-
-      if (parsedNumber) {
-        return {
-          min: parsedNumber.nationalNumber.length,
-          max: parsedNumber.nationalNumber.length,
-        };
-      }
-    } catch (error) {
-      console.error("Error getting phone number:", error);
-    }
-  }
-
-  return { min: null, max: null };
-};
 
 export const getCountryCode = (number: string): string => {
   try {
@@ -58,8 +9,7 @@ export const getCountryCode = (number: string): string => {
     const asYouType = new AsYouType();
     asYouType.input(number);
     return asYouType.country ? asYouType.country : "";
-  } catch (error) {
-    console.error("Error getting country calling code:", error);
+  } catch {
     return "";
   }
 };
@@ -87,8 +37,7 @@ export const formatPhoneNumber = (
       : `${dialCode}${phoneNumber.replace(/[^\d]/g, "")}`;
 
     return asYouType.input(fullNumber);
-  } catch (error) {
-    console.error("Error formatting phone number:", error);
+  } catch {
     return phoneNumber;
   }
 };
@@ -128,8 +77,7 @@ export const formatPhoneWithDialCode = (
     }
 
     return `${dialCode} ${cleanNumber}`;
-  } catch (error) {
-    console.error("Error formatting phone with dial code:", error);
+  } catch {
     return `${dialCode} ${phoneNumber || ""}`;
   }
 };

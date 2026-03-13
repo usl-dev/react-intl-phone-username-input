@@ -5,17 +5,29 @@ import clsx from "clsx";
 import { getFlag } from "@/helpers/getFlag";
 
 const LazyFlag: React.FC<FlagProps> = memo((props) => {
-  const { countryCode, label, customSelect, direction, className, size = "md" } = props;
+  const {
+    countryCode,
+    label,
+    customSelect,
+    direction,
+    flagBaseUrl,
+    className,
+    size = "md",
+  } = props;
   const [isVisible, setIsVisible] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const flagSrc = getFlag(countryCode);
+  const flagSrc = getFlag(countryCode, flagBaseUrl);
   const altText = label ?? "Flag";
 
   useEffect(() => {
     const currentImg = imgRef.current;
     if (!currentImg) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setIsVisible(true);
+      return;
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {

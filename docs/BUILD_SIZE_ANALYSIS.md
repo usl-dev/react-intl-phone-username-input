@@ -7,12 +7,13 @@ The library uses **code-splitting** and **lazy loading** so that the initial pay
 | Asset | Size (min) | Gzip | Notes |
 |-------|------------|------|--------|
 | **index.esm.js** | ~0.8 kB | ~0.35 kB | Entry; loads other chunks on demand |
-| **index.cjs.js** | ~1.3 kB | ~0.4 kB | Entry (CJS) |
+| **index.cjs** | ~1.3 kB | ~0.4 kB | Entry (CJS) |
 | **countryList-*.js** | ~24 kB (ESM) / ~17 kB (CJS) | ~4 kB | Lazy-loaded full country list |
 | **index-*.js** (multiple) | varies | varies | Lazy-loaded components (CustomSelect, HtmlSelect, hooks, etc.) |
 | **arrow-*.js** | ~0.9 kB | ~0.5 kB | Shared arrow icon chunk |
 | **react-intl-phone-username-input.css** | 6.71 kB | 1.76 kB | Styles |
-| **dist/assets/flags/** | ~270 SVGs | — | Copied as-is |
+
+**Published package size:** `npm pack --dry-run` now reports a `36.5 kB` tarball (`135.7 kB` unpacked). The tarball no longer includes bundled flag SVGs, which had been the biggest publish-size cost in earlier builds.
 
 **Initial load:** Only the entry file (~0.8 kB ESM) is required upfront. The rest loads when:
 
@@ -33,9 +34,16 @@ The library uses **code-splitting** and **lazy loading** so that the initial pay
 - **CustomSelect** (search, keyboard nav, custom UI) and **HtmlSelect** (native `<select>`) are loaded with `React.lazy()` only when `multiCountry` is true.
 - If the input is used only for a single country (e.g. `multiCountry: false`), those selector chunks are never requested.
 
+### Flag delivery
+
+- Flags are resolved at runtime from `https://flagcdn.com` by default.
+- Consumers can self-host flags by setting `options.flagBaseUrl`, for example `"/flags"`.
+- This keeps the published package much smaller because `dist/assets/flags` is no longer shipped.
+
 ### Externals (not in the bundle)
 
-- **react**, **react-dom**, **react/jsx-runtime**, **libphonenumber-js** (and subpaths) are marked as external. The consuming app must provide them (see README peer dependencies).
+- **react** and **react/jsx-runtime** are peer/runtime externals, so the consuming app must provide them.
+- **libphonenumber-js** (and subpaths) is also externalized from the bundle, but it is shipped as this package's runtime dependency and is installed automatically for consumers.
 
 ---
 
@@ -50,10 +58,10 @@ Before lazy-load and code-split, the build produced a single ESM file (~57 kB mi
 
 ## Regenerating the treemap
 
-Build with the visualizer (already in `vite.config.ts`):
+Build with the visualizer:
 
 ```bash
-npm run build
+npm run build:analyze
 ```
 
 Then open **`dist/stats.html`** in a browser to see the interactive treemap (and gzip/brotli sizes). Note: with code-splitting, the treemap may show multiple output chunks.

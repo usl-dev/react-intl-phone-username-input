@@ -1,13 +1,14 @@
 // tsconfig.node.json
 {
   "compilerOptions": {
-    "module": "CommonJS", //generate code for Node.js (CommonJS) environment
+    "module": "NodeNext", // Match Node's ESM behavior for local tool/config files
     "target": "ES2020", //generate code for ES2020 syntax
     "lib": ["ES2020"], //include ES2020 library definitions
     "strict": true, //enable all strict type checking options
     "esModuleInterop": true, //allow importing CommonJS modules as ES modules
-    "moduleResolution": "node", //use Node.js module resolution algorithm
+    "moduleResolution": "NodeNext", //use Node's modern module resolution algorithm
+    "noEmit": true, // Type-check config files only
     "resolveJsonModule": true //allow importing JSON modules
   },
-  "include": ["scripts"] //include the scripts directory in the compilation
+  "include": ["vite.config.ts", "vite.example.config.ts"] //include the local Node-side config files
 }

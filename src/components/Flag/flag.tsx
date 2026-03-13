@@ -1,15 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { getFlag } from "@/helpers/getFlag";
 import styles from "@/styles/flag.module.css";
 import { FlagProps } from "@/types/types";
 import clsx from "clsx";
 
 const Flag: React.FC<FlagProps> = (props) => {
-  const { countryCode, label, customSelect, direction, className, size = "md" } = props;
+  const {
+    countryCode,
+    label,
+    customSelect,
+    direction,
+    flagBaseUrl,
+    className,
+    size = "md",
+  } = props;
   const [hasError, setHasError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setHasError(false);
+    setIsLoaded(false);
+  }, [countryCode, flagBaseUrl]);
+
+  const handleImageLoad = () => {
+    setIsLoaded(true);
+  };
 
   const handleImageError = () => {
     setHasError(true);
+    setIsLoaded(true);
   };
 
   const altText = label ?? countryCode?.toUpperCase() ?? "??";
@@ -42,10 +61,12 @@ const Flag: React.FC<FlagProps> = (props) => {
       ) : (
         <img
           alt={altText}
-          src={getFlag(countryCode)}
-          className={styles.flag}
+          src={getFlag(countryCode, flagBaseUrl)}
+          className={clsx(styles.flag, !isLoaded && styles["flag-loading"])}
           loading="eager"
+          decoding="async"
           draggable={false}
+          onLoad={handleImageLoad}
           onError={handleImageError}
           style={{
             display: "block",
@@ -69,6 +90,7 @@ export default React.memo(Flag, (prevProps, nextProps) => {
     prevProps.label === nextProps.label &&
     prevProps.customSelect === nextProps.customSelect &&
     prevProps.direction === nextProps.direction &&
+    prevProps.flagBaseUrl === nextProps.flagBaseUrl &&
     prevProps.className === nextProps.className &&
     prevProps.size === nextProps.size
   );

@@ -9,10 +9,10 @@
 }
 
 .flag {
-    width: 25px;
-    height: 18px;
+    width: 24px;
+    height: 16px;
     /* Maintain consistent aspect ratio */
-    aspect-ratio: 25 / 18;
+    aspect-ratio: 24 / 16;
     object-fit: cover;
     object-position: center;
     pointer-events: none;
@@ -24,9 +24,9 @@
 }
 
 .flag-wrap.flag-sm .flag {
-    width: 18px;
-    height: 14px;
-    aspect-ratio: 18 / 14;
+    width: 24px;
+    height: 16px;
+    aspect-ratio: 24 / 16;
 }
 
 .flag-loading {

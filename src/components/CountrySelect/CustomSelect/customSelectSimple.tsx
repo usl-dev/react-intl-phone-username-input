@@ -11,12 +11,14 @@ const CustomSelectSimple: React.FC<CustomSelectProps> = (props) => {
     moveKeyToTop,
     countryCode,
     handleChangeSelect,
+    selectFieldName,
     showFlag,
     showDialCode,
     customArrowIcon,
     direction,
     enableSearch = true,
     searchPlaceholder,
+    flagBaseUrl,
     className,
   } = props;
 
@@ -30,11 +32,13 @@ const CustomSelectSimple: React.FC<CustomSelectProps> = (props) => {
     handleOptionClick,
     handleSearchChange,
     handleClickOutside,
+    handleKeyDown,
   } = useCustomSelect({
     countryCode,
     moveKeyToTop,
     enableSearch,
     handleChangeSelect,
+    selectFieldName,
   });
 
   const ref = useClickOutside<HTMLDivElement>(handleClickOutside, isOpen);
@@ -47,7 +51,7 @@ const CustomSelectSimple: React.FC<CustomSelectProps> = (props) => {
           styles["country-list-item"],
           className?.country_list_item
         )}
-        role="listbox"
+        role="presentation"
       >
         <button
           className={clsx(
@@ -60,6 +64,7 @@ const CustomSelectSimple: React.FC<CustomSelectProps> = (props) => {
           data-dial-code={option?.dial_code}
           onClick={handleOptionClick}
           aria-selected={option?.value === countryCode}
+          role="option"
           type="button"
         >
           {/* No flag in dropdown for performance - just text */}
@@ -80,7 +85,11 @@ const CustomSelectSimple: React.FC<CustomSelectProps> = (props) => {
         className?.select_container
       )}
       dir={direction}
+      onKeyDown={handleKeyDown}
     >
+      {selectFieldName && (
+        <input type="hidden" name={selectFieldName} value={countryCode} />
+      )}
       <button
         className={clsx(
           styles["select-overlay-btn"],
@@ -92,7 +101,11 @@ const CustomSelectSimple: React.FC<CustomSelectProps> = (props) => {
         aria-haspopup="listbox"
       >
         {/* Keep flag only in the button */}
-        <Flag countryCode={countryCode} className={className?.flag} />
+        <Flag
+          countryCode={countryCode}
+          flagBaseUrl={flagBaseUrl}
+          className={className?.flag}
+        />
         <Arrow
           customSelect={isOpen}
           customArrowIcon={customArrowIcon}
@@ -122,8 +135,7 @@ const CustomSelectSimple: React.FC<CustomSelectProps> = (props) => {
         <ul
           ref={listRef}
           className={clsx(styles["country-list"], className?.country_list)}
-          role="selection"
-          aria-activedescendant="option-id"
+          role="listbox"
         >
           {renderCountryList()}
         </ul>

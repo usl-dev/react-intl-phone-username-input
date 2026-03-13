@@ -1,25 +1,30 @@
-import React, { useMemo, Suspense, lazy } from "react";
+import React, { useEffect, useMemo, Suspense, lazy } from "react";
 import InputField from "../InputField";
 import Flag from "../Flag";
+import Arrow from "../CountrySelect/Arrow";
 import { IntlPhoneUsernameInputProps } from "@/types/types";
 import useInputHook from "@/hooks/useInputHook";
 import styles from "@/styles/intlPhoneUsernameInput.module.css";
+import htmlSelectStyles from "@/styles/htmlSelect.module.css";
+import customSelectStyles from "@/styles/customSelect.module.css";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import clsx from "clsx";
 import { getValidOptions } from "@/helpers/getValidOptions";
 import { cleanProps } from "@/helpers/cleanProps";
 import { SELECT_FIELD_NAME } from "@/assets/constants";
 
-const CustomSelectLazy = lazy(() =>
-  import("../CountrySelect/CustomSelect").then((m) => ({ default: m.default }))
-);
-const HtmlSelectLazy = lazy(() =>
-  import("../CountrySelect/HtmlSelect").then((m) => ({ default: m.default }))
-);
+const loadCustomSelect = () =>
+  import("../CountrySelect/CustomSelect").then((m) => ({ default: m.default }));
+const loadHtmlSelect = () =>
+  import("../CountrySelect/HtmlSelect").then((m) => ({ default: m.default }));
 
-const IntlPhoneUsernameInput: React.FC<IntlPhoneUsernameInputProps> = (
-  props
-) => {
+const CustomSelectLazy = lazy(loadCustomSelect);
+const HtmlSelectLazy = lazy(loadHtmlSelect);
+
+const IntlPhoneUsernameInput = React.forwardRef<
+  HTMLInputElement,
+  IntlPhoneUsernameInputProps
+>((props, forwardedRef) => {
   const {
     value,
     onChange,
@@ -42,12 +47,13 @@ const IntlPhoneUsernameInput: React.FC<IntlPhoneUsernameInputProps> = (
     customSelect,
     mode,
     defaultCountry,
-    highLightCountries,
+    highlightCountries,
     preferredCountries,
     customArrowIcon,
     direction,
     enforceCustomSelect,
     enforceHtmlSelect,
+    flagBaseUrl,
     classes,
     format,
     hideDialCode,
@@ -66,90 +72,212 @@ const IntlPhoneUsernameInput: React.FC<IntlPhoneUsernameInputProps> = (
     mode,
     multiCountry,
     defaultCountry,
-    highLightCountries,
+    highlightCountries,
     preferredCountries,
     value,
     onChange,
     format,
     onChangeSelect,
     hideDialCode,
+    selectFieldName,
   });
 
   const isMobile = useDeviceType();
 
-  const renderSelect = useMemo(() => {
-    if (
-      multiCountry &&
-      inputValue?.startsWith(countryDetails?.presentDialCode)
-    ) {
-      const selectFallback = null;
-      if (enforceCustomSelect) {
-        return (
-          <Suspense fallback={selectFallback}>
-            <CustomSelectLazy
-              handleChangeSelect={handleChangeSelect}
-              moveKeyToTop={moveKeyToTop}
-              countryCode={countryDetails?.code}
-              customArrowIcon={customArrowIcon}
-              direction={direction}
-              className={classes?.custom_select as { [key: string]: string }}
-              {...customSelect}
-            />
-          </Suspense>
-        );
-      } else if (enforceHtmlSelect) {
-        return (
-          <Suspense fallback={selectFallback}>
-            <HtmlSelectLazy
-              handleChangeSelect={handleChangeSelect}
-              moveKeyToTop={moveKeyToTop}
-              countryCode={countryDetails?.code}
-              customArrowIcon={customArrowIcon}
-              className={classes?.html_select as { [key: string]: string }}
-              direction={direction}
-            />
-          </Suspense>
-        );
-      } else {
-        return isMobile ? (
-          <Suspense fallback={selectFallback}>
-            <HtmlSelectLazy
-              handleChangeSelect={handleChangeSelect}
-              moveKeyToTop={moveKeyToTop}
-              countryCode={countryDetails?.code}
-              customArrowIcon={customArrowIcon}
-              direction={direction}
-              className={classes?.html_select as { [key: string]: string }}
-            />
-          </Suspense>
-        ) : (
-          <Suspense fallback={selectFallback}>
-            <CustomSelectLazy
-              handleChangeSelect={handleChangeSelect}
-              moveKeyToTop={moveKeyToTop}
-              countryCode={countryDetails?.code}
-              customArrowIcon={customArrowIcon}
-              className={classes?.custom_select as { [key: string]: string }}
-              direction={direction}
-              {...customSelect}
-            />
-          </Suspense>
-        );
-      }
+  useEffect(() => {
+    if (!multiCountry) {
+      return;
     }
-    return null;
+
+    if (enforceCustomSelect) {
+      void loadCustomSelect();
+      return;
+    }
+
+    if (enforceHtmlSelect) {
+      void loadHtmlSelect();
+      return;
+    }
+
+    if (isMobile) {
+      void loadHtmlSelect();
+      return;
+    }
+
+    void loadCustomSelect();
+  }, [multiCountry, enforceCustomSelect, enforceHtmlSelect, isMobile]);
+
+  const mergedInputRef = React.useCallback(
+    (node: HTMLInputElement | null) => {
+      inputRef.current = node;
+
+      if (typeof forwardedRef === "function") {
+        forwardedRef(node);
+      } else if (forwardedRef) {
+        forwardedRef.current = node;
+      }
+    },
+    [forwardedRef, inputRef]
+  );
+
+  const renderSelect = useMemo(() => {
+    if (!multiCountry) {
+      return null;
+    }
+
+    const htmlSelectClasses = classes?.html_select as
+      | { [key: string]: string }
+      | undefined;
+    const customSelectClasses = classes?.custom_select as
+      | { [key: string]: string }
+      | undefined;
+
+    const selectVariant =
+      enforceCustomSelect || (!enforceHtmlSelect && !isMobile)
+        ? "custom"
+        : "html";
+
+    const selectFallback =
+      selectVariant === "html" ? (
+        <div
+          data-component="html-select-fallback"
+          className={clsx(
+            htmlSelectStyles["select-container"],
+            direction === "rtl" && htmlSelectStyles.rtl,
+            htmlSelectClasses?.html_select_container
+          )}
+          aria-hidden="true"
+        >
+          <div
+            className={clsx(
+              htmlSelectStyles["select-wrapper"],
+              htmlSelectClasses?.select_wrapper
+            )}
+            style={{ pointerEvents: "none" }}
+          >
+            <Flag
+              countryCode={countryDetails?.code}
+              label={countryDetails?.label}
+              direction={direction}
+              flagBaseUrl={flagBaseUrl}
+              className={htmlSelectClasses?.flag}
+            />
+            <Arrow
+              customArrowIcon={customArrowIcon}
+              className={htmlSelectClasses?.arrow}
+            />
+          </div>
+        </div>
+      ) : (
+        <div
+          data-component="custom-select-fallback"
+          className={clsx(
+            customSelectStyles["select-container"],
+            direction === "rtl" && customSelectStyles.rtl,
+            customSelectClasses?.select_container
+          )}
+          aria-hidden="true"
+        >
+          <button
+            type="button"
+            tabIndex={-1}
+            className={clsx(
+              customSelectStyles["select-overlay-btn"],
+              customSelectClasses?.select_overlay_btn
+            )}
+            style={{ pointerEvents: "none" }}
+          >
+            <Flag
+              countryCode={countryDetails?.code}
+              label={countryDetails?.label}
+              direction={direction}
+              flagBaseUrl={flagBaseUrl}
+              className={customSelectClasses?.flag}
+              size="sm"
+            />
+            <Arrow
+              customArrowIcon={customArrowIcon}
+              className={customSelectClasses?.arrow}
+            />
+          </button>
+        </div>
+      );
+
+    if (enforceCustomSelect) {
+      return (
+        <Suspense fallback={selectFallback}>
+          <CustomSelectLazy
+            handleChangeSelect={handleChangeSelect}
+            moveKeyToTop={moveKeyToTop}
+            countryCode={countryDetails?.code}
+            selectFieldName={selectFieldName}
+            customArrowIcon={customArrowIcon}
+            direction={direction}
+            flagBaseUrl={flagBaseUrl}
+            className={classes?.custom_select as { [key: string]: string }}
+            {...customSelect}
+          />
+        </Suspense>
+      );
+    }
+
+    if (enforceHtmlSelect) {
+      return (
+        <Suspense fallback={selectFallback}>
+          <HtmlSelectLazy
+            handleChangeSelect={handleChangeSelect}
+            moveKeyToTop={moveKeyToTop}
+            countryCode={countryDetails?.code}
+            selectFieldName={selectFieldName}
+            customArrowIcon={customArrowIcon}
+            className={classes?.html_select as { [key: string]: string }}
+            direction={direction}
+            flagBaseUrl={flagBaseUrl}
+          />
+        </Suspense>
+      );
+    }
+
+    return isMobile ? (
+      <Suspense fallback={selectFallback}>
+        <HtmlSelectLazy
+          handleChangeSelect={handleChangeSelect}
+          moveKeyToTop={moveKeyToTop}
+          countryCode={countryDetails?.code}
+          selectFieldName={selectFieldName}
+          customArrowIcon={customArrowIcon}
+          direction={direction}
+          flagBaseUrl={flagBaseUrl}
+          className={classes?.html_select as { [key: string]: string }}
+        />
+      </Suspense>
+    ) : (
+      <Suspense fallback={selectFallback}>
+        <CustomSelectLazy
+          handleChangeSelect={handleChangeSelect}
+          moveKeyToTop={moveKeyToTop}
+          countryCode={countryDetails?.code}
+          selectFieldName={selectFieldName}
+          customArrowIcon={customArrowIcon}
+          className={classes?.custom_select as { [key: string]: string }}
+          direction={direction}
+          flagBaseUrl={flagBaseUrl}
+          {...customSelect}
+        />
+      </Suspense>
+    );
   }, [
     multiCountry,
-    inputValue,
-    countryDetails?.presentDialCode,
     enforceCustomSelect,
     enforceHtmlSelect,
     isMobile,
     handleChangeSelect,
     moveKeyToTop,
     countryDetails?.code,
+    selectFieldName,
     customArrowIcon,
     direction,
+    flagBaseUrl,
     classes?.custom_select,
     classes?.html_select,
     customSelect,
@@ -169,6 +297,7 @@ const IntlPhoneUsernameInput: React.FC<IntlPhoneUsernameInputProps> = (
             countryCode={countryDetails?.code}
             label={countryDetails?.label}
             direction={direction}
+            flagBaseUrl={flagBaseUrl}
             className={classes?.flag as string}
           />
         </div>
@@ -181,6 +310,7 @@ const IntlPhoneUsernameInput: React.FC<IntlPhoneUsernameInputProps> = (
     isNumber,
     countryDetails?.code,
     direction,
+    flagBaseUrl,
     classes?.flag_container,
     classes?.flag,
   ]);
@@ -200,7 +330,7 @@ const IntlPhoneUsernameInput: React.FC<IntlPhoneUsernameInputProps> = (
         multiCountry={multiCountry}
         inputValue={inputValue}
         handleInputChange={handleInputChange}
-        inputRef={inputRef}
+        inputRef={mergedInputRef}
         handleClick={handleClick}
         direction={direction}
         phoneMode={mode === "phone"}
@@ -211,7 +341,9 @@ const IntlPhoneUsernameInput: React.FC<IntlPhoneUsernameInputProps> = (
       />
     </div>
   );
-};
+});
+
+IntlPhoneUsernameInput.displayName = "IntlPhoneUsernameInput";
 
 // Simplified memo comparison for better performance
 export default React.memo(IntlPhoneUsernameInput, (prevProps, nextProps) => {

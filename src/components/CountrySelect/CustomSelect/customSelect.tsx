@@ -13,12 +13,14 @@ const CustomSelect: React.FC<CustomSelectProps> = (props) => {
     moveKeyToTop,
     countryCode,
     handleChangeSelect,
+    selectFieldName,
     showFlag,
     showDialCode,
     customArrowIcon,
     direction,
     enableSearch = true,
     searchPlaceholder,
+    flagBaseUrl,
     className,
   } = props;
 
@@ -39,6 +41,7 @@ const CustomSelect: React.FC<CustomSelectProps> = (props) => {
     moveKeyToTop,
     enableSearch,
     handleChangeSelect,
+    selectFieldName,
   });
 
   const ref = useClickOutside<HTMLDivElement>(handleClickOutside, isOpen);
@@ -81,6 +84,7 @@ const CustomSelect: React.FC<CustomSelectProps> = (props) => {
                 countryCode={option?.value}
                 label={option?.label}
                 customSelect
+                flagBaseUrl={flagBaseUrl}
                 className={className?.list_flag}
                 size="sm"
               />
@@ -102,6 +106,7 @@ const CustomSelect: React.FC<CustomSelectProps> = (props) => {
       isOpen,
       showDialCode,
       focusedIndex,
+      flagBaseUrl,
     ]
   );
 
@@ -115,7 +120,11 @@ const CustomSelect: React.FC<CustomSelectProps> = (props) => {
         className?.select_container
       )}
       dir={direction}
+      onKeyDown={handleKeyDown}
     >
+      {selectFieldName && (
+        <input type="hidden" name={selectFieldName} value={countryCode} />
+      )}
       <button
         id={buttonId}
         className={clsx(
@@ -135,6 +144,7 @@ const CustomSelect: React.FC<CustomSelectProps> = (props) => {
         <Flag
           countryCode={countryCode}
           label={moveKeyToTop.find((c) => c.value === countryCode)?.label}
+          flagBaseUrl={flagBaseUrl}
           className={className?.flag}
           size="sm"
         />
@@ -159,16 +169,16 @@ const CustomSelect: React.FC<CustomSelectProps> = (props) => {
             className={clsx(styles["search-input"], className?.search_input)}
             value={searchQuery}
             onChange={handleSearchChange}
-            onKeyDown={handleKeyDown}
             ref={searchInputRef}
             aria-label="Search countries"
           />
         )}
         <ul
+          id={listboxId}
           ref={listRef}
           className={clsx(styles["country-list"], className?.country_list)}
-          role="selection"
-          aria-activedescendant="option-id"
+          role="listbox"
+          aria-labelledby={buttonId}
         >
           {renderCountryList}
         </ul>
@@ -182,11 +192,13 @@ export default React.memo(CustomSelect, (prevProps, nextProps) => {
   return (
     prevProps.countryCode === nextProps.countryCode &&
     prevProps.handleChangeSelect === nextProps.handleChangeSelect &&
+    prevProps.selectFieldName === nextProps.selectFieldName &&
     prevProps.showFlag === nextProps.showFlag &&
     prevProps.showDialCode === nextProps.showDialCode &&
     prevProps.direction === nextProps.direction &&
     prevProps.enableSearch === nextProps.enableSearch &&
     prevProps.searchPlaceholder === nextProps.searchPlaceholder &&
+    prevProps.flagBaseUrl === nextProps.flagBaseUrl &&
     // Only check reference equality for complex objects
     prevProps.moveKeyToTop === nextProps.moveKeyToTop &&
     prevProps.className === nextProps.className &&

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { BtnClickEvent } from "@/types/types";
+import { BtnClickEvent, CountrySelectChange } from "@/types/types";
 
 type CountryOption = {
   label: string;
@@ -12,7 +12,8 @@ interface UseCustomSelectProps {
   countryCode: string;
   moveKeyToTop: CountryOption[];
   enableSearch: boolean;
-  handleChangeSelect: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  handleChangeSelect: (change: CountrySelectChange) => void;
+  selectFieldName?: string;
 }
 
 export const useCustomSelect = ({
@@ -20,6 +21,7 @@ export const useCustomSelect = ({
   moveKeyToTop,
   enableSearch,
   handleChangeSelect,
+  selectFieldName,
 }: UseCustomSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,22 +40,6 @@ export const useCustomSelect = ({
     setSearchQuery("");
     setFocusedIndex(-1);
   }, []);
-
-  const createFakeEvent = useCallback(
-    (value: string, dialCode: string) =>
-      ({
-        target: {
-          value,
-          selectedOptions: [
-            {
-              getAttribute: (attr: string) =>
-                attr === "data-dial-code" ? dialCode : null,
-            },
-          ],
-        },
-      } as unknown as React.ChangeEvent<HTMLSelectElement>),
-    []
-  );
 
   const filteredCountries = useMemo<CountryOption[]>(() => {
     if (!moveKeyToTop) return [];
@@ -80,7 +66,9 @@ export const useCustomSelect = ({
     if (el) {
       el.focus();
       // scrollIntoView synchronously to keep UX snappy
-      el.scrollIntoView({ block: "nearest" });
+      if (typeof el.scrollIntoView === "function") {
+        el.scrollIntoView({ block: "nearest" });
+      }
     }
   }, []);
 
@@ -89,10 +77,15 @@ export const useCustomSelect = ({
     (country: CountryOption) => {
       setIsOpen(false);
       resetState();
-      const fakeEvent = createFakeEvent(country.value, country.dial_code ?? "");
-      handleChangeSelect(fakeEvent);
+      handleChangeSelect({
+        countryCode: country.value,
+        dialCode: country.dial_code ?? "",
+        label: country.label,
+        name: selectFieldName,
+        source: "custom-select",
+      });
     },
-    [createFakeEvent, handleChangeSelect, resetState]
+    [handleChangeSelect, resetState, selectFieldName]
   );
 
   // Toggle dropdown (keeps immediate scroll to selected)
@@ -186,42 +179,6 @@ export const useCustomSelect = ({
     [isOpen, filteredCountries, selectCountry, resetState]
   );
 
-  // Document-level keyboard listener so arrow keys always work while open
-  useEffect(() => {
-    if (!isOpen) return;
-    const onDocKey = (ev: KeyboardEvent) => {
-      const key = ev.key;
-      if (key === "ArrowDown") {
-        ev.preventDefault();
-        setFocusedIndex((prev) => {
-          const max = filteredCountries.length - 1;
-          const next = prev < max ? prev + 1 : 0;
-          return next;
-        });
-      } else if (key === "ArrowUp") {
-        ev.preventDefault();
-        setFocusedIndex((prev) => {
-          const max = filteredCountries.length - 1;
-          const next = prev > 0 ? prev - 1 : max;
-          return next;
-        });
-      } else if (key === "Enter") {
-        ev.preventDefault();
-        const idx = focusedIndexRef.current;
-        if (idx >= 0 && filteredCountries[idx]) {
-          selectCountry(filteredCountries[idx]);
-        }
-      } else if (key === "Escape") {
-        ev.preventDefault();
-        setIsOpen(false);
-        resetState();
-      }
-    };
-
-    document.addEventListener("keydown", onDocKey);
-    return () => document.removeEventListener("keydown", onDocKey);
-  }, [isOpen, filteredCountries, selectCountry, resetState]);
-
   // whenever focusedIndex changes, focus and scroll that item into view
   useEffect(() => {
     if (focusedIndex >= 0) {
@@ -251,17 +208,6 @@ export const useCustomSelect = ({
     setIsOpen(false);
     resetState();
   }, [resetState]);
-
-  // keep scroll-to-selected behaviour when countryCode changes
-  useEffect(() => {
-    if (!isOpen) {
-      // if closed, keep prepared scroll position on the selected button
-      setTimeout(() => {
-        const idx = moveKeyToTop.findIndex((c) => c.value === countryCode);
-        if (idx >= 0) scrollIntoIndex(idx);
-      }, 0);
-    }
-  }, [countryCode, isOpen, moveKeyToTop, scrollIntoIndex]);
 
   return {
     isOpen,

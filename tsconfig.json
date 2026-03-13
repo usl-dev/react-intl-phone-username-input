@@ -3,21 +3,27 @@
   "compilerOptions": {
     "target": "ESNext", // Specify ECMAScript target version
     "module": "ESNext", // Specify module code generation
-    "declaration": true, // Generate .d.ts declaration files
-    "declarationDir": "dist/types", // Output directory for declaration files
-    "outDir": "dist", // Redirect output structure to the directory
     "jsx": "react-jsx", // Specify JSX code generation
     "moduleResolution": "bundler", // Determine how modules get resolved
     "esModuleInterop": true, // Emit additional JS for commonjs interop
     "strict": true, // Enable all strict type-checking options
     "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references
     "skipLibCheck": true, // Skip type checking of declaration files
+    "noEmit": true, // Type-check only; the library build is handled by Vite
     "isolatedModules": true, // Ensure each file can be safely transpiled
     "paths": {
       // Mapping of module import paths
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "vitest.setup.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
+    "vitest.setup.ts"
+  ]
 }

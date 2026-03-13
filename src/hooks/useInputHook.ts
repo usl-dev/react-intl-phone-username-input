@@ -1,19 +1,18 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import { AsYouType, parsePhoneNumberFromString } from "libphonenumber-js";
+import { AsYouType, CountryCode, parsePhoneNumberFromString } from "libphonenumber-js";
 import { NUMBER_REGEX, NUMBER_REGEX_WITH_PLUS, DEFAULT_COUNTRY_CODE } from "@/assets/constants";
 import { minimalCountryList } from "@/assets/minimalCountryList";
 import {
-  getPhoneNoLength,
   formatPhoneWithDialCode,
   looksLikePhoneNumber,
   extractDigits,
 } from "@/helpers/phoneNumberUtil";
 import {
   ClickEvent,
+  CountrySelectChange,
   CountryState,
   ExtendedOptions,
   InputEvent,
-  SelectEvent,
   UseInputHookReturn,
 } from "@/types/types";
 import { buildCountryMap, getMovedCountries } from "@/helpers/helpers";
@@ -24,13 +23,14 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
     mode,
     multiCountry,
     defaultCountry,
-    highLightCountries,
+    highlightCountries,
     preferredCountries,
     value,
     onChange,
     format,
     onChangeSelect,
     hideDialCode,
+    selectFieldName,
   } = props;
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -55,14 +55,12 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
   const defaultCode: string =
     defaultCountry ?? preferredCountries?.[0] ?? DEFAULT_COUNTRY_CODE;
   const defaultDialCode: string = countryMap[defaultCode]?.dial_code ?? "";
-  const defaultFlag: string = countryMap[defaultCode]?.image ?? "";
   const defaultLabel: string = countryMap[defaultCode]?.label ?? "";
 
   // Initialize state with fallback values
   const [countryDetails, setCountryDetails] = useState<CountryState>(() => ({
     presentDialCode: defaultDialCode,
     code: defaultCode,
-    flag: defaultFlag,
     label: defaultLabel,
   }));
 
@@ -101,7 +99,6 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
       setCountryDetails({
         presentDialCode: countryMap[defaultCode]?.dial_code ?? "",
         code: defaultCode,
-        flag: countryMap[defaultCode]?.image ?? "",
         label: countryMap[defaultCode]?.label ?? "",
       });
     }
@@ -123,11 +120,6 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
     };
   }, []);
 
-  const { max } = useMemo(
-    () => getPhoneNoLength(isNumber, countryDetails?.code),
-    [isNumber, countryDetails?.code]
-  );
-
   // Optimized input change handler with memoization
   const handleInputChange = useCallback(
     (e: InputEvent) => {
@@ -138,18 +130,16 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
         if (hideDialCode) {
           // When hideDialCode is true, handle input without dial code prefix
           const cleanedNumber = extractDigits(newValue);
-          const limitedNumber =
-            max && cleanedNumber.length > max
-              ? cleanedNumber.slice(0, max)
-              : cleanedNumber;
 
           // Format without dial code but keep internal tracking
-          if (format && limitedNumber) {
-            const asYouType = new AsYouType(countryDetails?.code as any);
-            const formatted = asYouType.input(limitedNumber);
+          if (format && cleanedNumber) {
+            const asYouType = new AsYouType(
+              countryDetails?.code as CountryCode | undefined
+            );
+            const formatted = asYouType.input(cleanedNumber);
             onChange(formatted.replace(/^\+\d+\s*/, ""));
           } else {
-            onChange(limitedNumber);
+            onChange(cleanedNumber);
           }
           return;
         }
@@ -175,13 +165,9 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
         }
 
         const cleanedNumber = extractDigits(numberPart);
-        const limitedNumber =
-          max && cleanedNumber.length > max
-            ? cleanedNumber.slice(0, max)
-            : cleanedNumber;
 
         const formattedNumber = formatPhoneWithDialCode(
-          limitedNumber,
+          cleanedNumber,
           countryDetails?.presentDialCode,
           format,
           countryDetails?.code
@@ -266,14 +252,9 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
           return;
         }
 
-        const limitedNumber =
-          max && cleanedNumber.length > max
-            ? cleanedNumber.slice(0, max)
-            : cleanedNumber;
-
         // Format the phone number using utility function
         const formattedNumber = formatPhoneWithDialCode(
-          limitedNumber,
+          cleanedNumber,
           countryDetails?.presentDialCode,
           format,
           countryDetails?.code
@@ -290,26 +271,27 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
       mobileNumberOnly,
       countryDetails?.presentDialCode,
       countryDetails?.code,
-      max,
       format,
       hideDialCode,
     ]
   );
 
   const handleChangeSelect = useCallback(
-    (e: SelectEvent) => {
+    (change: CountrySelectChange) => {
       if (multiCountry) {
-        const value = e.target.value;
-        const dialCode =
-          e.target.selectedOptions?.[0]?.getAttribute("data-dial-code") ?? "";
-        const flag = countryMap[value]?.image ?? "";
+        const {
+          countryCode,
+          dialCode,
+          label,
+          name,
+          source,
+        } = change;
 
         // Force immediate synchronous update for instant UI feedback
         setCountryDetails({
-          code: value,
+          code: countryCode,
           presentDialCode: dialCode,
-          flag,
-          label: countryMap[value]?.label ?? "",
+          label: label ?? countryMap[countryCode]?.label ?? "",
         });
 
         // Then update input value based on new country
@@ -324,15 +306,30 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
           const input = inputRef.current;
           if (input && document.contains(input)) {
             input.focus();
-            const pos = newDialCodeWithSpace.length;
+            const pos = hideDialCode
+              ? input.value.length
+              : newDialCodeWithSpace.length;
             input.setSelectionRange(pos, pos);
           }
         }, 0);
 
-        if (onChangeSelect) onChangeSelect(e);
+        onChangeSelect?.({
+          countryCode,
+          dialCode,
+          label: label ?? countryMap[countryCode]?.label ?? "",
+          name: name ?? selectFieldName,
+          source,
+        });
       }
     },
-    [multiCountry, countryMap, onChange, onChangeSelect, hideDialCode]
+    [
+      multiCountry,
+      countryMap,
+      onChange,
+      onChangeSelect,
+      hideDialCode,
+      selectFieldName,
+    ]
   );
 
   const handleClick = useCallback(
@@ -359,10 +356,10 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
       getMovedCountries(
         listToUse,
         countryMap,
-        highLightCountries,
+        highlightCountries,
         preferredCountries
       ),
-    [listToUse, countryMap, highLightCountries, preferredCountries]
+    [listToUse, countryMap, highlightCountries, preferredCountries]
   );
 
   return {

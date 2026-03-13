@@ -37,7 +37,7 @@ These fields are already set (or you can adjust them):
 | `types` | TypeScript declarations entry. |
 | `exports` | Modern entry points including `types`, `import`, `require`. |
 | `files` | Only `dist` is published; everything else is ignored. |
-| `peerDependencies` | React and react-dom (consumers must have React). |
+| `peerDependencies` | React 18+ (consumers must have React). |
 | `dependencies` | libphonenumber-js (installed with your package; not listed in user’s package.json). |
 | `prepublishOnly` | Runs `npm run build` before publish so `dist` is up to date. |
 
@@ -61,11 +61,18 @@ npm run build
 
 Check that `dist/` has at least:
 
-- `index.esm.js`, `index.cjs.js`
+- `index.esm.js`, `index.cjs`
 - `react-intl-phone-username-input.css`
 - `types/` (`.d.ts` files)
-- `assets/flags/` (if you ship flags)
 - Any code-split chunks (e.g. `countryList-*.js`, `index-*.js`)
+
+Consumers should also be able to import the stylesheet via:
+
+```ts
+import "react-intl-phone-username-input/style.css";
+```
+
+By default, flag images are fetched from `https://flagcdn.com`. If your consumers need self-hosted assets, they can pass `options.flagBaseUrl` such as `"/flags"`.
 
 ---
 
@@ -124,7 +131,7 @@ bun add react-intl-phone-username-input
 ```
 
 Replace the package name with your scoped name if you used one (e.g. `@yourusername/react-intl-phone-username-input`).  
-`libphonenumber-js` is installed automatically as a dependency of your package and will not appear in the user’s `package.json`. Users only need React (peer dependency) in their project.
+`libphonenumber-js` is installed automatically as a dependency of your package and will not appear in the user’s `package.json`. Users only need React 18+ (peer dependency) in their project.
 
 ---
 

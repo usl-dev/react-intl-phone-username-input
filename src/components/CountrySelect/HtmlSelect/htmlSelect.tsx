@@ -3,7 +3,7 @@ import Flag from "@/components/Flag";
 import styles from "@/styles/htmlSelect.module.css";
 import Arrow from "../Arrow";
 import clsx from "clsx";
-import { HtmlSelectProps } from "@/types/types";
+import { CountrySelectChange, HtmlSelectProps } from "@/types/types";
 
 const HtmlSelect: React.FC<HtmlSelectProps> = (props) => {
   const {
@@ -13,8 +13,24 @@ const HtmlSelect: React.FC<HtmlSelectProps> = (props) => {
     selectFieldName = "country_select",
     customArrowIcon,
     direction,
+    flagBaseUrl,
     className,
   } = props;
+
+  const handleNativeSelectChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedOption = e.target.selectedOptions?.[0];
+    const change: CountrySelectChange = {
+      countryCode: e.target.value,
+      dialCode: selectedOption?.getAttribute("data-dial-code") ?? "",
+      label: selectedOption?.getAttribute("data-label") ?? undefined,
+      name: e.target.name,
+      source: "native-select",
+    };
+
+    handleChangeSelect(change);
+  };
 
   return (
     <div
@@ -31,7 +47,7 @@ const HtmlSelect: React.FC<HtmlSelectProps> = (props) => {
         <select
           name={selectFieldName}
           value={countryCode}
-          onChange={handleChangeSelect}
+          onChange={handleNativeSelectChange}
           className={clsx(styles["select-overlay"], className?.select_overlay)}
         >
           {moveKeyToTop?.map((option) => (
@@ -49,6 +65,7 @@ const HtmlSelect: React.FC<HtmlSelectProps> = (props) => {
         <Flag
           countryCode={countryCode}
           label={moveKeyToTop?.find((c) => c.value === countryCode)?.label}
+          flagBaseUrl={flagBaseUrl}
           className={className?.flag}
         />
         <Arrow customArrowIcon={customArrowIcon} className={className?.arrow} />
@@ -66,6 +83,7 @@ function areEqual(
     prev.handleChangeSelect === next.handleChangeSelect &&
     prev.selectFieldName === next.selectFieldName &&
     prev.direction === next.direction &&
+    prev.flagBaseUrl === next.flagBaseUrl &&
     prev.moveKeyToTop === next.moveKeyToTop &&
     prev.className === next.className &&
     prev.customArrowIcon === next.customArrowIcon

@@ -1,11 +1,15 @@
 {
   "name": "react-intl-phone-username-input",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "license": "MIT",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/types/index.d.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/types/index.d.ts",
+  "author": {
+    "name": "Eldho Shaju",
+    "email": "eldhoshaju99@gmail.com"
+  },
   "files": [
     "dist"
   ],
@@ -13,12 +17,14 @@
     ".": {
       "types": "./dist/types/index.d.ts",
       "import": "./dist/index.esm.js",
-      "require": "./dist/index.cjs.js"
-    }
+      "require": "./dist/index.cjs"
+    },
+    "./style.css": "./dist/react-intl-phone-username-input.css"
   },
   "scripts": {
     "dev": "vite --config vite.example.config.ts",
     "build": "vite build",
+    "build:analyze": "vite build --mode analyze",
     "build:example": "vite build --config vite.example.config.ts",
     "preview": "vite preview --config vite.example.config.ts",
     "test": "vitest",
@@ -29,8 +35,7 @@
     "libphonenumber-js": "^1.12.6"
   },
   "peerDependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react": ">=18.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
@@ -47,7 +52,6 @@
     "eslint-plugin-react-refresh": "^0.4.14",
     "globals": "^15.12.0",
     "jsdom": "^28.1.0",
-    "libphonenumber-js": "^1.12.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "rollup-plugin-visualizer": "^7.0.0",
@@ -55,10 +59,9 @@
     "typescript-eslint": "^8.15.0",
     "vite": "^6.2.3",
     "vite-plugin-dts": "^4.5.4",
-    "vite-plugin-static-copy": "^3.2.0",
     "vitest": "^4.0.18"
   },
-  "description": "React input for international phone numbers and usernames with country selector, formatting, and RTL support",
+  "description": "React input for international phone numbers with country selector, formatting, and usernames with RTL support",
   "keywords": [
     "react",
     "phone",
@@ -73,7 +76,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/react-intl-phone-username-input.git"
+    "url": "https://github.com/eldho-shaju/react-intl-phone-username-input"
   },
-  "homepage": "https://github.com/yourusername/react-intl-phone-username-input#readme"
+  "homepage": "https://github.com/eldho-shaju/react-intl-phone-username-input#readme"
 }

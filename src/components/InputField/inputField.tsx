@@ -24,7 +24,7 @@ const InputField: React.FC<InputFieldProps> = (props) => {
   const inputClassName = clsx(
     styles.inputBox,
     multiCountry && styles.multiCountryInput,
-    isNumber && enableFlag && styles.number,
+    !multiCountry && isNumber && enableFlag && styles.number,
     direction === "rtl" && styles.rtl,
     className
   );
@@ -41,7 +41,7 @@ const InputField: React.FC<InputFieldProps> = (props) => {
       inputMode={phoneMode ? "numeric" : "text"}
       pattern={phoneMode ? "\\d*" : undefined}
       className={inputClassName}
-      aria-label={rest.placeholder ?? "text-input"}
+      aria-label={rest["aria-label"] ?? rest.placeholder ?? "text-input"}
       aria-invalid={rest["aria-invalid"] ?? false}
       aria-required={rest.required ?? false}
       {...rest}

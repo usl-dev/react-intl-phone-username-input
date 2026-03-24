@@ -476,3 +476,9 @@ MIT. See the LICENSE file in the repository.
 
 - **Issues:** [GitHub Issues](https://github.com/usl-dev/react-intl-phone-username-input/issues)
 - **Discussions:** [GitHub Discussions](https://github.com/usl-dev/react-intl-phone-username-input/discussions)
+
+## Support This Project
+
+If this package saves you time, consider sponsoring:
+
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/usl-dev?style=flat-square)](https://github.com/sponsors/usl-dev)

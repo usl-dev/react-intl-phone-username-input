@@ -8,6 +8,11 @@ import {
   extractDigits,
 } from "@/helpers/phoneNumberUtil";
 import {
+  getPhoneInputLimits,
+  sanitizePhoneInput,
+  looksLikePhone,
+} from "@/helpers/phoneLimits";
+import {
   ClickEvent,
   CountrySelectChange,
   CountryState,
@@ -36,7 +41,13 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const mountedRef = useRef(true);
   const focusFrameRef = useRef<number | null>(null);
+  const isPasteRef = useRef(false);
   const mobileNumberOnly: boolean = mode === "phone";
+
+  /** Called from InputField's onPaste before onChange fires. */
+  const markPaste = useCallback(() => {
+    isPasteRef.current = true;
+  }, []);
 
   // Lazy-load full country list; use minimal list until loaded
   const [fullCountryList, setFullCountryList] = useState<Country[] | null>(
@@ -74,6 +85,28 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
     const defaultUsername = mobileNumberOnly ? `${defaultDialCode} ` : "";
     return value ? value : defaultUsername;
   }, [value, mobileNumberOnly, defaultDialCode, hideDialCode]);
+
+
+  // ── Phone length limits ──────────────────────────────────────────────────────
+  // Stable memo: only recalculates when country, format, or hideDialCode change.
+  const phoneLimits = useMemo(
+    () => getPhoneInputLimits(countryDetails.code, format === true, hideDialCode === true),
+    [countryDetails.code, format, hideDialCode]
+  );
+
+  /**
+   * maxLength to set on the <input> element.
+   * - phone mode  → always the computed limit
+   * - hybrid mode → computed limit only while the current value looks phone-like,
+   *                 otherwise undefined (no restriction, user's maxLength prop wins)
+   */
+  const effectiveMaxLength = useMemo((): number | undefined => {
+    if (mobileNumberOnly) return phoneLimits?.maxLength ?? undefined;
+    if (looksLikePhone(inputValue, countryDetails.presentDialCode)) {
+      return phoneLimits?.maxLength ?? undefined;
+    }
+    return undefined;
+  }, [mobileNumberOnly, phoneLimits, inputValue, countryDetails.presentDialCode]);
 
   // Memoize number validation
   const { isNumber, phoneNumber, dialCodeLength } = useMemo(() => {
@@ -128,6 +161,9 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
   const handleInputChange = useCallback(
     (e: InputEvent) => {
       const newValue = (e.target as HTMLInputElement).value;
+      // Consume the paste flag atomically so every branch sees the right value.
+      const isPaste = isPasteRef.current;
+      isPasteRef.current = false;
 
       if (mobileNumberOnly) {
         // Handle phone-only mode
@@ -141,16 +177,18 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
               countryDetails?.code as CountryCode | undefined
             );
             const formatted = asYouType.input(cleanedNumber);
-            onChange(formatted.replace(/^\+\d+\s*/, ""));
+            const result = formatted.replace(/^\+\d+\s*/, "");
+            onChange(sanitizePhoneInput(result, inputValue, phoneLimits, isPaste));
           } else {
-            onChange(cleanedNumber);
+            onChange(sanitizePhoneInput(cleanedNumber, inputValue, phoneLimits, isPaste));
           }
           return;
         }
 
         const dialCodeWithSpace = `${countryDetails?.presentDialCode} `;
 
-        // Handle backspace: if user deletes space after dial code, restore it
+        // Handle backspace: if user deletes space after dial code, restore it.
+        // Never sanitize this guard – it is always a short valid state.
         if (newValue === countryDetails?.presentDialCode) {
           onChange(dialCodeWithSpace);
           return;
@@ -177,30 +215,26 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
           countryDetails?.code
         );
 
-        onChange(formattedNumber);
+        onChange(sanitizePhoneInput(formattedNumber, inputValue, phoneLimits, isPaste));
         return;
       }
 
-      // Handle hybrid mode (text + phone number support)
+      // ── Hybrid mode (text + phone number support) ─────────────────────────
       const dialCodeWithSpace = `${countryDetails?.presentDialCode} `;
 
-      // Enhanced logic for hybrid mode
       // Check if input contains letters (indicating text mode)
       const hasLetters = /[a-zA-Z]/.test(newValue);
 
-      // Check if it looks like phone but also consider if it has letters mixed in
       const startsWithDialCode =
         newValue.startsWith(dialCodeWithSpace) ||
         newValue.startsWith(countryDetails?.presentDialCode);
       const looksPhoneNumber = looksLikePhoneNumber(newValue);
 
-      // If it has letters and starts with dial code, it might be transitioning from phone to text
+      // If it has letters and starts with dial code, transition from phone to text
       if (hasLetters && startsWithDialCode) {
-        // Remove dial code and treat as text, also remove any formatting spaces
         const withoutDialCode = newValue.startsWith(dialCodeWithSpace)
           ? newValue.slice(dialCodeWithSpace.length)
           : newValue.slice(countryDetails?.presentDialCode.length);
-        // Remove any remaining spaces from the text portion
         const cleanText = withoutDialCode.replace(/\s+/g, "");
         onChange(cleanText);
         return;
@@ -208,8 +242,6 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
 
       // If it has letters anywhere, treat as text and remove formatting spaces
       if (hasLetters) {
-        // Check if this was previously a formatted phone number
-        // If so, remove all spaces to make it plain text
         const cleanText = newValue.replace(/\s+/g, "");
         onChange(cleanText);
         return;
@@ -217,19 +249,13 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
 
       // Handle phone number input
       if (looksPhoneNumber || startsWithDialCode) {
-        // In hybrid mode, allow complete deletion of dial code
-        // If user deletes everything (including dial code), allow it
+        // Allow complete deletion of dial code
         if (newValue === "") {
           onChange("");
           return;
         }
 
-        // In hybrid mode, if user deletes space after dial code but there are no digits,
-        // check if they're trying to delete the dial code entirely
         if (newValue === countryDetails?.presentDialCode) {
-          // Check if there's any number content that would suggest keeping the dial code
-          // In hybrid mode, we allow complete deletion, so don't auto-restore
-          // Let it be handled as empty or text input
           onChange("");
           return;
         }
@@ -238,10 +264,8 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
         if (newValue.startsWith(dialCodeWithSpace)) {
           numberPart = newValue.slice(dialCodeWithSpace.length);
         } else if (newValue.startsWith(countryDetails?.presentDialCode)) {
-          // Handle case where space is missing
           numberPart = newValue.slice(countryDetails?.presentDialCode.length);
         } else {
-          // For inputs that look like phone numbers but don't start with dial code
           numberPart = newValue;
         }
 
@@ -256,7 +280,6 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
           return;
         }
 
-        // Format the phone number using utility function
         const formattedNumber = formatPhoneWithDialCode(
           cleanedNumber,
           countryDetails?.presentDialCode,
@@ -264,9 +287,13 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
           countryDetails?.code
         );
 
-        onChange(formattedNumber);
+        // In hybrid mode, only apply phone limits while the value is phone-like
+        const hybridLimits = looksLikePhone(formattedNumber, countryDetails?.presentDialCode)
+          ? phoneLimits
+          : null;
+        onChange(sanitizePhoneInput(formattedNumber, inputValue, hybridLimits, isPaste));
       } else {
-        // Handle as regular text input (username/email)
+        // Handle as regular text input (username/email) – no phone limits apply
         onChange(newValue);
       }
     },
@@ -277,6 +304,8 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
       countryDetails?.code,
       format,
       hideDialCode,
+      phoneLimits,
+      inputValue,
     ]
   );
 
@@ -378,6 +407,9 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
     moveKeyToTop,
     inputValue,
     isNumber,
+    phoneLimits,
+    markPaste,
+    effectiveMaxLength,
   };
 };
 

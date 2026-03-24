@@ -16,15 +16,28 @@ const InputField = (props: InputFieldProps) => {
     isNumber,
     className,
     enableFlag,
+    markPaste,
     ...rest
   } = props;
 
   const id = useId();
 
+  // Extract user-supplied onPaste so we can compose it with markPaste.
+  // markPaste() must fire BEFORE onChange so the paste flag is set when
+  // handleInputChange reads it.
+  const { onPaste: userOnPaste, ...spreadableRest } = rest;
+
+  const handlePaste = React.useCallback(
+    (e: React.ClipboardEvent<HTMLInputElement>) => {
+      markPaste?.();
+      userOnPaste?.(e);
+    },
+    [markPaste, userOnPaste]
+  );
+
   const inputClassName = clsx(
     styles.inputBox,
     multiCountry && styles.multiCountryInput,
-    !multiCountry && isNumber && enableFlag && styles.number,
     direction === "rtl" && styles.rtl,
     className
   );
@@ -37,14 +50,15 @@ const InputField = (props: InputFieldProps) => {
       value={inputValue}
       onChange={handleInputChange}
       onClick={handleClick}
+      onPaste={handlePaste}
       dir={direction}
       inputMode={phoneMode ? "numeric" : "text"}
-      pattern={phoneMode ? "\\d*" : undefined}
+      pattern={phoneMode ? "\d*" : undefined}
       className={inputClassName}
-      aria-label={rest["aria-label"] ?? rest.placeholder ?? "text-input"}
-      aria-invalid={rest["aria-invalid"] ?? false}
-      aria-required={rest.required ?? false}
-      {...rest}
+      aria-label={spreadableRest["aria-label"] ?? spreadableRest.placeholder ?? "text-input"}
+      aria-invalid={spreadableRest["aria-invalid"] ?? false}
+      aria-required={spreadableRest.required ?? false}
+      {...spreadableRest}
     />
   );
 };

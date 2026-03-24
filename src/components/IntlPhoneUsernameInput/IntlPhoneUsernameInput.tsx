@@ -68,6 +68,8 @@ const IntlPhoneUsernameInput = React.forwardRef<
     moveKeyToTop,
     inputValue,
     isNumber,
+    markPaste,
+    effectiveMaxLength,
   } = useInputHook({
     mode,
     multiCountry,
@@ -337,7 +339,9 @@ const IntlPhoneUsernameInput = React.forwardRef<
         isNumber={isNumber}
         className={classes?.input_box as string}
         enableFlag={multiCountry ? true : enableFlag}
+        markPaste={markPaste}
         {...inputProps}
+        {...(effectiveMaxLength !== undefined && { maxLength: effectiveMaxLength })}
       />
     </div>
   );

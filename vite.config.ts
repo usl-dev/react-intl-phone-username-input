@@ -37,8 +37,8 @@ export default defineConfig(({ mode }) => ({
   build: {
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
-      name: "react-identity-input",
-      cssFileName: "react-identity-input",
+      name: "react-intl-phone-username-input",
+      cssFileName: "react-intl-phone-username-input",
       fileName: (format) => (format === "es" ? "index.esm.js" : "index.cjs"),
       formats: ["es", "cjs"],
     },

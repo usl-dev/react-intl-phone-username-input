@@ -1,12 +1,12 @@
 {
-  "name": "react-identity-input",
+  "name": "react-intl-phone-username-input",
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
   "main": "./dist/index.cjs",
   "module": "./dist/index.esm.js",
   "types": "./dist/types/index.d.ts",
-  "author": "USL",
+  "author": "Upscale Software Labs <upscalesoftwarelabs@gmail.com>",
   "files": [
     "dist"
   ],
@@ -16,7 +16,7 @@
       "import": "./dist/index.esm.js",
       "require": "./dist/index.cjs"
     },
-    "./style.css": "./dist/react-identity-input.css"
+    "./style.css": "./dist/react-intl-phone-username-input.css"
   },
   "scripts": {
     "dev": "vite --config vite.example.config.ts",
@@ -32,7 +32,8 @@
     "libphonenumber-js": "^1.12.6"
   },
   "peerDependencies": {
-    "react": ">=18.0.0"
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
@@ -73,7 +74,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/usl-dev/react-identity-input.git"
+    "url": "git+https://github.com/usl-dev/react-intl-phone-username-input.git"
   },
-  "homepage": "https://github.com/usl-dev/react-identity-input#readme"
+  "homepage": "https://github.com/usl-dev/react-intl-phone-username-input#readme",
+  "bugs": {
+    "url": "https://github.com/usl-dev/react-intl-phone-username-input/issues"
+  }
 }

@@ -4,14 +4,14 @@
 
 The library uses **code-splitting** and **lazy loading** so that the initial payload is small and heavier parts load on demand.
 
-| Asset | Size (min) | Gzip | Notes |
-|-------|------------|------|--------|
-| **index.esm.js** | ~0.8 kB | ~0.35 kB | Entry; loads other chunks on demand |
-| **index.cjs** | ~1.3 kB | ~0.4 kB | Entry (CJS) |
-| **countryList-*.js** | ~24 kB (ESM) / ~17 kB (CJS) | ~4 kB | Lazy-loaded full country list |
-| **index-*.js** (multiple) | varies | varies | Lazy-loaded components (CustomSelect, HtmlSelect, hooks, etc.) |
-| **arrow-*.js** | ~0.9 kB | ~0.5 kB | Shared arrow icon chunk |
-| **react-identity-input.css** | 6.71 kB | 1.76 kB | Styles |
+| Asset                                   | Size (min)                  | Gzip     | Notes                                                          |
+| --------------------------------------- | --------------------------- | -------- | -------------------------------------------------------------- |
+| **index.esm.js**                        | ~0.8 kB                     | ~0.35 kB | Entry; loads other chunks on demand                            |
+| **index.cjs**                           | ~1.3 kB                     | ~0.4 kB  | Entry (CJS)                                                    |
+| **countryList-\*.js**                   | ~24 kB (ESM) / ~17 kB (CJS) | ~4 kB    | Lazy-loaded full country list                                  |
+| **index-\*.js** (multiple)              | varies                      | varies   | Lazy-loaded components (CustomSelect, HtmlSelect, hooks, etc.) |
+| **arrow-\*.js**                         | ~0.9 kB                     | ~0.5 kB  | Shared arrow icon chunk                                        |
+| **react-intl-phone-username-input.css** | 6.71 kB                     | 1.76 kB  | Styles                                                         |
 
 **Published package size:** `npm pack --dry-run` now reports a `36.5 kB` tarball (`135.7 kB` unpacked). The tarball no longer includes bundled flag SVGs, which had been the biggest publish-size cost in earlier builds.
 

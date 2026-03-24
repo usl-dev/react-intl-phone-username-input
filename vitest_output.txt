@@ -1,0 +1,58 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90mC:/Personal/MyWorks/react-intl-phone-username-input[39m
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mIN: getFormattedMaxLength / getUnformattedMaxLength
+[22m[39mIN formattedMax: [33m15[39m
+IN unformattedMax: [33m13[39m
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mIN format=true hideDialCode=false
+[22m[39mgetPhoneInputLimits(IN,true,false): {"maxLength":16,"minLength":14}
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mIN format=true hideDialCode=true
+[22m[39mgetPhoneInputLimits(IN,true,true): {"maxLength":11,"minLength":9}
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mIN format=false hideDialCode=false
+[22m[39mgetPhoneInputLimits(IN,false,false): {"maxLength":14,"minLength":12}
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mIN format=false hideDialCode=true
+[22m[39mgetPhoneInputLimits(IN,false,true): {"maxLength":10,"minLength":8}
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mUS: getFormattedMaxLength / getUnformattedMaxLength
+[22m[39mUS formattedMax: [33m15[39m
+US unformattedMax: [33m12[39m
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mUS format=true hideDialCode=false
+[22m[39mgetPhoneInputLimits(US,true,false): {"maxLength":16,"minLength":16}
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mUS format=true hideDialCode=true
+[22m[39mgetPhoneInputLimits(US,true,true): {"maxLength":14,"minLength":14}
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mUS format=false hideDialCode=false
+[22m[39mgetPhoneInputLimits(US,false,false): {"maxLength":13,"minLength":13}
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mUS format=false hideDialCode=true
+[22m[39mgetPhoneInputLimits(US,false,true): {"maxLength":10,"minLength":10}
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mGB: getFormattedMaxLength / getUnformattedMaxLength
+[22m[39mGB formattedMax: [33m15[39m
+GB unformattedMax: [33m13[39m
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mGB format=true hideDialCode=false
+[22m[39mgetPhoneInputLimits(GB,true,false): {"maxLength":16,"minLength":13}
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mGB format=true hideDialCode=true
+[22m[39mgetPhoneInputLimits(GB,true,true): {"maxLength":10,"minLength":7}
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mGB format=false hideDialCode=false
+[22m[39mgetPhoneInputLimits(GB,false,false): {"maxLength":14,"minLength":11}
+
+[90mstdout[2m | src/probe.test.ts[2m > [22m[2mprobe – print limit values[2m > [22m[2mGB format=false hideDialCode=true
+[22m[39mgetPhoneInputLimits(GB,false,true): {"maxLength":10,"minLength":7}
+
+ [32m✓[39m src/probe.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m15 passed[39m[22m[90m (15)[39m
+[2m   Start at [22m 14:20:09
+[2m   Duration [22m 4.13s[2m (transform 216ms, setup 616ms, import 446ms, tests 72ms, environment 2.48s)[22m
+

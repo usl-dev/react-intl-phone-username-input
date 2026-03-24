@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { IntlPhoneUsernameInput } from "../src";
 
+const defaultCountry = "IN";
+
 function App() {
   const [value1, setValue1] = useState("");
   const [value2, setValue2] = useState("");
@@ -30,7 +32,7 @@ function App() {
             onChange={setValue1}
             options={{
               mode: "phone",
-              defaultCountry: "US",
+              defaultCountry,
               multiCountry: true,
             }}
             placeholder="Enter phone number"
@@ -45,7 +47,7 @@ function App() {
             onChange={setValue2}
             options={{
               mode: "phone",
-              defaultCountry: "US",
+              defaultCountry,
               multiCountry: true,
               format: false,
               enforceCustomSelect: true,
@@ -67,8 +69,8 @@ function App() {
             onChange={setValue3}
             options={{
               mode: "hybrid",
-              defaultCountry: "US",
-              multiCountry: false,
+              defaultCountry,
+              multiCountry: true,
               enableFlag: true,
             }}
             placeholder="Enter username or phone number"
@@ -86,7 +88,7 @@ function App() {
             value={value4}
             onChange={setValue4}
             options={{
-              defaultCountry: "QA",
+              defaultCountry,
               enableFlag: false,
               mode: "phone",
               hideDialCode: true,

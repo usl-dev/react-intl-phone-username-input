@@ -71,6 +71,11 @@ export type FlagProps = {
   size?: "sm" | "md";
 };
 
+export type PhoneInputLimits = {
+  maxLength: number;
+  minLength: number;
+};
+
 export type InputFieldProps = InputPassthroughProps & {
   handleInputChange: (e: InputEvent) => void;
   inputRef: React.Ref<HTMLInputElement>;
@@ -82,6 +87,7 @@ export type InputFieldProps = InputPassthroughProps & {
   isNumber: boolean;
   className?: string;
   enableFlag?: boolean;
+  markPaste?: () => void;
 };
 
 type CustomSelectConfig = {
@@ -142,6 +148,9 @@ export type UseInputHookReturn = {
   moveKeyToTop: Country[];
   inputValue: string;
   isNumber: boolean;
+  phoneLimits: PhoneInputLimits | null;
+  markPaste: () => void;
+  effectiveMaxLength: number | undefined;
 };
 
 export type ArrowProps = {

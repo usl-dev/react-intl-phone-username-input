@@ -1,164 +1,131 @@
 # Publishing to npm
 
-This document describes how to publish this package to the **npm registry** so users can install it with npm, yarn, pnpm, or bun.
-
 ---
 
-## 1. Prerequisites
+## First-time publish
 
-- **npm account** – [Sign up](https://www.npmjs.com/signup) if you don’t have one.
-- **Package name** – The name `react-intl-phone-username-input` might already be taken. Check:
-  ```bash
-  npm search react-intl-phone-username-input
-  ```
-  Or try:
-  ```bash
-  npm view react-intl-phone-username-input
-  ```
-  If it returns 404, the name is free. If taken, use a **scoped name** (e.g. `@yourusername/react-intl-phone-username-input`) and update `name` in `package.json`.
-
----
-
-## 2. Configuration in `package.json`
-
-These fields are already set (or you can adjust them):
-
-| Field              | Purpose                                                                                      |
-| ------------------ | -------------------------------------------------------------------------------------------- |
-| `name`             | Package name on npm (must be unique or scoped).                                              |
-| `version`          | Set to `1.0.0` (or `0.1.0`) for first publish; use [semver](https://semver.org/) after that. |
-| `description`      | Short summary (shown on npm and in `npm install`).                                           |
-| `keywords`         | Helps discovery on npm.                                                                      |
-| `license`          | `MIT` (or your chosen license).                                                              |
-| `repository`       | Git URL (replace `yourusername` with your GitHub username).                                  |
-| `homepage`         | Usually the repo URL or docs.                                                                |
-| `main`             | Entry for Node/CommonJS (`require`).                                                         |
-| `module`           | Entry for ESM (`import`).                                                                    |
-| `types`            | TypeScript declarations entry.                                                               |
-| `exports`          | Modern entry points including `types`, `import`, `require`.                                  |
-| `files`            | Only `dist` is published; everything else is ignored.                                        |
-| `peerDependencies` | React 18+ (consumers must have React).                                                       |
-| `dependencies`     | libphonenumber-js (installed with your package; not listed in user’s package.json).          |
-| `prepublishOnly`   | Runs `npm run build` before publish so `dist` is up to date.                                 |
-
-**Before first publish:**
-
-1. Set **version** (e.g. `1.0.0`):
-   ```bash
-   npm version 1.0.0 --no-git-tag-version
-   ```
-2. Replace **repository** and **homepage** URLs with your actual GitHub (or other) URLs.
-
----
-
-## 3. Build
-
-Ensure the library builds and that `dist` contains what you expect:
+### 1. Check package name availability
 
 ```bash
-npm run build
+yarn npm info react-intl-phone-username-input
 ```
 
-Check that `dist/` has at least:
+If it returns a 404, the name is free. Otherwise use a scoped name like `@usl-dev/react-intl-phone-username-input` and update `name` in `package.json`.
+
+---
+
+### 2. Set version
+
+```bash
+npm version 1.0.0 --no-git-tag-version
+```
+
+---
+
+### 3. Update `package.json` fields
+
+Make sure these are filled in before publishing:
+
+| Field         | Value                            |
+| ------------- | -------------------------------- |
+| `name`        | Package name (unique, or scoped) |
+| `version`     | `1.0.0` for first publish        |
+| `description` | Short summary                    |
+| `repository`  | Your GitHub repo URL             |
+| `homepage`    | Repo URL or docs URL             |
+
+---
+
+### 4. Build
+
+```bash
+yarn build
+```
+
+Verify `dist/` contains:
 
 - `index.esm.js`, `index.cjs`
 - `react-intl-phone-username-input.css`
 - `types/` (`.d.ts` files)
-- Any code-split chunks (e.g. `countryList-*.js`, `index-*.js`)
-
-Consumers should also be able to import the stylesheet via:
-
-```ts
-import "react-intl-phone-username-input/style.css";
-```
-
-By default, flag images are fetched from `https://flagcdn.com`. If your consumers need self-hosted assets, they can pass `options.flagBaseUrl` such as `"/flags"`.
 
 ---
 
-## 4. Log in to npm
-
-From the project root:
+### 5. Log in to npm
 
 ```bash
 npm login
 ```
 
-Follow the prompts (username, password, OTP if 2FA is enabled). To use a different registry:
-
-```bash
-npm config set registry https://registry.npmjs.org/
-```
+Enter your username, password, and OTP if 2FA is enabled.
 
 ---
 
-## 5. Publish
+### 6. Publish
 
-**Unscoped package** (e.g. `react-intl-phone-username-input`):
+**Unscoped package:**
 
 ```bash
 npm publish
 ```
 
-**Scoped package** (e.g. `@yourusername/react-intl-phone-username-input`):
-
-Scoped packages are private by default. To publish as **public**:
+**Scoped package** (scoped packages are private by default):
 
 ```bash
 npm publish --access public
 ```
 
-After that, users can install with any of the following.
-
 ---
 
-## 6. How users install
+## Updating an existing version
 
-Once the package is published, anyone can run:
+### 1. Bump version
 
 ```bash
-# npm
-npm install react-intl-phone-username-input
-
-# yarn
-yarn add react-intl-phone-username-input
-
-# pnpm
-pnpm add react-intl-phone-username-input
-
-# bun
-bun add react-intl-phone-username-input
+# Pick one:
+npm version patch --no-git-tag-version   # 1.0.0 → 1.0.1  (bug fix)
+npm version minor --no-git-tag-version   # 1.0.0 → 1.1.0  (new feature)
+npm version major --no-git-tag-version   # 1.0.0 → 2.0.0  (breaking change)
 ```
 
-Replace the package name with your scoped name if you used one (e.g. `@yourusername/react-intl-phone-username-input`).  
-`libphonenumber-js` is installed automatically as a dependency of your package and will not appear in the user’s `package.json`. Users only need React 18+ (peer dependency) in their project.
+---
+
+### 2. Build + publish
+
+`prepublishOnly` in `package.json` runs `yarn build` automatically, so just run:
+
+```bash
+npm publish
+# or for scoped:
+npm publish --access public
+```
 
 ---
 
-## 7. After publishing
+## After publishing
 
-- **npm page:** `https://www.npmjs.com/package/react-intl-phone-username-input` (or your scoped package URL).
-- **New versions:** Bump version (`npm version patch|minor|major`), then run `npm publish` again. `prepublishOnly` will run the build automatically.
-- **Unpublish:** Avoid unpublishing if others depend on it. Prefer deprecation:
-  ```bash
-  npm deprecate react-intl-phone-username-input "Use @yourusername/react-intl-phone-username-input instead"
-  ```
+- npm page: `https://www.npmjs.com/package/react-intl-phone-username-input`
+- Users install with:
 
----
+```bash
+yarn add react-intl-phone-username-input
+```
 
-## 8. Optional: `.npmignore`
-
-You’re using the **`files`** field in `package.json` (only `dist` is included), so you don’t need `.npmignore` for basic publishing. If you add a `.npmignore`, it **overrides** `.gitignore` for the tarball; with `files`, only listed paths are included, so `.npmignore` is only useful to exclude something inside `dist` (rare).
+`libphonenumber-js` installs automatically as a dependency. Users only need React 18+ as a peer dependency.
 
 ---
 
 ## Quick checklist
 
-- [ ] npm account created
-- [ ] Package name available or scoped name set in `package.json`
-- [ ] `version` set (e.g. `1.0.0`)
+**First publish**
+
+- [ ] Name available or scoped name set
+- [ ] `version` set to `1.0.0`
 - [ ] `repository` and `homepage` updated
-- [ ] `npm run build` succeeds
+- [ ] `yarn build` succeeds
 - [ ] `npm login` done
-- [ ] `npm publish` (or `npm publish --access public` for scoped)
-- [ ] README has install instructions and notes peer deps (React only)
+- [ ] `npm publish` (add `--access public` if scoped)
+
+**Subsequent releases**
+
+- [ ] `npm version patch|minor|major --no-git-tag-version`
+- [ ] `npm publish`

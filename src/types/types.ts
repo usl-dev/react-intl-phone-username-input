@@ -148,6 +148,7 @@ export type UseInputHookReturn = {
   moveKeyToTop: Country[];
   inputValue: string;
   isNumber: boolean;
+  looksLikePhoneNum: boolean;
   phoneLimits: PhoneInputLimits | null;
   markPaste: () => void;
   effectiveMaxLength: number | undefined;

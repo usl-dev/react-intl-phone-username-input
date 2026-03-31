@@ -58,6 +58,10 @@ Try the component in StackBlitz:
 
 - **Interactive demo:** https://stackblitz.com/github/usl-dev/react-intl-phone-username-input
 
+More detailed specs, usage scenarios, and option behavior are documented at:
+
+- **Full feature docs:** https://upscalesoftwarelabs.vercel.app/package/react-intl-phone-username-input/
+
 You can use the live sandbox to test phone-only, hybrid, multi-country, and RTL configurations without cloning the repo.
 
 Flags are loaded from `https://flagcdn.com` by default. If your app needs self-hosted assets or has a strict CSP, set `options.flagBaseUrl` to your own flag path.
@@ -124,14 +128,14 @@ export default function App() {
   onChange={setValue}
   options={{
     mode: "phone",
-    defaultCountry: "IN",
     multiCountry: true,
-    enableFlag: true,
-    format: true,
+    defaultCountry: "IN",
   }}
   placeholder="Enter phone number"
 />
 ```
+
+> Additional options (format hideDialCode, enableFlag, preferredCountries, etc.) are available in the feature docs.
 
 ### Custom dropdown (search + keyboard)
 
@@ -291,31 +295,31 @@ const inputRef = useRef<HTMLInputElement>(null);
 
 ### Options object
 
-| Option                           | Type                    | Default                 | Description                                                                                          |
-| -------------------------------- | ----------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------- |
-| **Core**                         |                         |                         |                                                                                                      |
-| `mode`                           | `"phone"` \| `"hybrid"` | `"hybrid"`              | `"phone"`: numbers only; `"hybrid"`: text or phone, format when it looks like a number.              |
-| `defaultCountry`                 | string                  | `"IN"`                  | Default country (ISO 3166-1 alpha-2, e.g. `"US"`, `"IN"`). Must be supported by `libphonenumber-js`. |
-| `multiCountry`                   | boolean                 | `false`                 | Show country selector (dropdown). When true, selector chunks load dynamically.                       |
-| `format`                         | boolean                 | `true`                  | Format phone number as you type.                                                                     |
-| `enableFlag`                     | boolean                 | `true`                  | Show country flag when **not** in multi-country mode (single country + flag only).                   |
-| `hideDialCode`                   | boolean                 | `false`                 | If true, dial code is not shown in the input (still used internally).                                |
-| **Country selector**             |                         |                         |                                                                                                      |
-| `enforceCustomSelect`            | boolean                 | `false`                 | Always use custom dropdown (search + keyboard).                                                      |
-| `enforceHtmlSelect`              | boolean                 | `false`                 | Always use native `<select>`.                                                                        |
-| `flagBaseUrl`                    | string                  | `"https://flagcdn.com"` | Base URL used to resolve flag SVGs, for example `"/flags"` when self-hosting.                        |
-| `customSelect`                   | object                  | see below               | Options for the custom dropdown.                                                                     |
-| `customSelect.showFlag`          | boolean                 | `false`                 | Show flags in dropdown options.                                                                      |
-| `customSelect.showDialCode`      | boolean                 | `false`                 | Show dial codes in dropdown options.                                                                 |
-| `customSelect.enableSearch`      | boolean                 | `true`                  | Enable search in dropdown.                                                                           |
-| `customSelect.searchPlaceholder` | string                  | `"Search"`              | Placeholder for search input.                                                                        |
-| **Country order**                |                         |                         |                                                                                                      |
-| `preferredCountries`             | string[]                | `[]`                    | Country codes to show first, e.g. `["US", "CA", "GB"]`.                                              |
-| `highlightCountries`             | string[]                | `[]`                    | Country codes to pin above preferred countries at the top of the list.                               |
-| **Layout & styling**             |                         |                         |                                                                                                      |
-| `direction`                      | `"ltr"` \| `"rtl"`      | `"ltr"`                 | Text/layout direction.                                                                               |
-| `classes`                        | object                  | `{}`                    | CSS class overrides; see [Styling](#styling-with-classes-prop).                                      |
-| `customArrowIcon`                | ReactNode               | —                       | Custom icon for the dropdown trigger.                                                                |
+| Option                           | Type                    | Default                 | Description                                                                                                                                                   |
+| -------------------------------- | ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Core**                         |                         |                         |                                                                                                                                                               |
+| `mode`                           | `"phone"` \| `"hybrid"` | `"hybrid"`              | `"phone"`: strictly phone input (numbers only, always format). `"hybrid"`: accepts username/email/text and formats only when input looks like a phone number. |
+| `defaultCountry`                 | string                  | `"IN"`                  | Default country (ISO 3166-1 alpha-2, e.g. `"US"`, `"IN"`). Must be supported by `libphonenumber-js`.                                                          |
+| `multiCountry`                   | boolean                 | `false`                 | Show country selector (dropdown). When true, selector chunks load dynamically. `enableFlag` is ignored in this mode; selection UI controls flags.             |
+| `format`                         | boolean                 | `true`                  | Format phone number as you type.                                                                                                                              |
+| `enableFlag`                     | boolean                 | `true`                  | Show country flag in single-country mode. When `multiCountry: true`, this option has no effect (flags are always shown in the selector).                      |
+| `hideDialCode`                   | boolean                 | `false`                 | If true, dial code is not shown in the input (still used internally).                                                                                         |
+| **Country selector**             |                         |                         |                                                                                                                                                               |
+| `enforceCustomSelect`            | boolean                 | `false`                 | Always use custom dropdown (search + keyboard).                                                                                                               |
+| `enforceHtmlSelect`              | boolean                 | `false`                 | Always use native `<select>`.                                                                                                                                 |
+| `flagBaseUrl`                    | string                  | `"https://flagcdn.com"` | Base URL used to resolve flag SVGs, for example `"/flags"` when self-hosting.                                                                                 |
+| `customSelect`                   | object                  | see below               | Options for the custom dropdown.                                                                                                                              |
+| `customSelect.showFlag`          | boolean                 | `false`                 | Show flags in dropdown options.                                                                                                                               |
+| `customSelect.showDialCode`      | boolean                 | `false`                 | Show dial codes in dropdown options.                                                                                                                          |
+| `customSelect.enableSearch`      | boolean                 | `true`                  | Enable search in dropdown.                                                                                                                                    |
+| `customSelect.searchPlaceholder` | string                  | `"Search"`              | Placeholder for search input.                                                                                                                                 |
+| **Country order**                |                         |                         |                                                                                                                                                               |
+| `preferredCountries`             | string[]                | `[]`                    | Country codes to show first, e.g. `["US", "CA", "GB"]`.                                                                                                       |
+| `highlightCountries`             | string[]                | `[]`                    | Country codes to pin above preferred countries at the top of the list.                                                                                        |
+| **Layout & styling**             |                         |                         |                                                                                                                                                               |
+| `direction`                      | `"ltr"` \| `"rtl"`      | `"ltr"`                 | Text/layout direction.                                                                                                                                        |
+| `classes`                        | object                  | `{}`                    | CSS class overrides; see [Styling](#styling-with-classes-prop).                                                                                               |
+| `customArrowIcon`                | ReactNode               | —                       | Custom icon for the dropdown trigger.                                                                                                                         |
 
 When neither `enforceCustomSelect` nor `enforceHtmlSelect` is set, the component picks native select on small screens (e.g. &lt; 768px) and custom dropdown on larger screens.
 

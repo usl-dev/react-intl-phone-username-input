@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import { AsYouType, CountryCode, parsePhoneNumberFromString } from "libphonenumber-js";
-import { NUMBER_REGEX, NUMBER_REGEX_WITH_PLUS, DEFAULT_COUNTRY_CODE } from "@/assets/constants";
+import {
+  AsYouType,
+  CountryCode,
+  parsePhoneNumberFromString,
+} from "libphonenumber-js";
+import {
+  NUMBER_REGEX,
+  NUMBER_REGEX_WITH_PLUS,
+  DEFAULT_COUNTRY_CODE,
+} from "@/assets/constants";
 import { minimalCountryList } from "@/assets/minimalCountryList";
 import {
   formatPhoneWithDialCode,
@@ -51,17 +59,16 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
 
   // Lazy-load full country list; use minimal list until loaded
   const [fullCountryList, setFullCountryList] = useState<Country[] | null>(
-    null
+    null,
   );
   useEffect(() => {
-    import("@/assets/countryList").then((m) => setFullCountryList(m.countryList));
+    import("@/assets/countryList").then((m) =>
+      setFullCountryList(m.countryList),
+    );
   }, []);
 
   const listToUse = fullCountryList ?? minimalCountryList;
-  const countryMap = useMemo(
-    () => buildCountryMap(listToUse),
-    [listToUse]
-  );
+  const countryMap = useMemo(() => buildCountryMap(listToUse), [listToUse]);
 
   // Calculate default values
   const defaultCode: string =
@@ -86,12 +93,16 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
     return value ? value : defaultUsername;
   }, [value, mobileNumberOnly, defaultDialCode, hideDialCode]);
 
-
   // ── Phone length limits ──────────────────────────────────────────────────────
   // Stable memo: only recalculates when country, format, or hideDialCode change.
   const phoneLimits = useMemo(
-    () => getPhoneInputLimits(countryDetails.code, format === true, hideDialCode === true),
-    [countryDetails.code, format, hideDialCode]
+    () =>
+      getPhoneInputLimits(
+        countryDetails.code,
+        format === true,
+        hideDialCode === true,
+      ),
+    [countryDetails.code, format, hideDialCode],
   );
 
   /**
@@ -106,7 +117,12 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
       return phoneLimits?.maxLength ?? undefined;
     }
     return undefined;
-  }, [mobileNumberOnly, phoneLimits, inputValue, countryDetails.presentDialCode]);
+  }, [
+    mobileNumberOnly,
+    phoneLimits,
+    inputValue,
+    countryDetails.presentDialCode,
+  ]);
 
   // Memoize number validation
   const { isNumber, phoneNumber, dialCodeLength } = useMemo(() => {
@@ -174,13 +190,22 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
           // Format without dial code but keep internal tracking
           if (format && cleanedNumber) {
             const asYouType = new AsYouType(
-              countryDetails?.code as CountryCode | undefined
+              countryDetails?.code as CountryCode | undefined,
             );
             const formatted = asYouType.input(cleanedNumber);
             const result = formatted.replace(/^\+\d+\s*/, "");
-            onChange(sanitizePhoneInput(result, inputValue, phoneLimits, isPaste));
+            onChange(
+              sanitizePhoneInput(result, inputValue, phoneLimits, isPaste),
+            );
           } else {
-            onChange(sanitizePhoneInput(cleanedNumber, inputValue, phoneLimits, isPaste));
+            onChange(
+              sanitizePhoneInput(
+                cleanedNumber,
+                inputValue,
+                phoneLimits,
+                isPaste,
+              ),
+            );
           }
           return;
         }
@@ -212,10 +237,12 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
           cleanedNumber,
           countryDetails?.presentDialCode,
           format,
-          countryDetails?.code
+          countryDetails?.code,
         );
 
-        onChange(sanitizePhoneInput(formattedNumber, inputValue, phoneLimits, isPaste));
+        onChange(
+          sanitizePhoneInput(formattedNumber, inputValue, phoneLimits, isPaste),
+        );
         return;
       }
 
@@ -284,14 +311,24 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
           cleanedNumber,
           countryDetails?.presentDialCode,
           format,
-          countryDetails?.code
+          countryDetails?.code,
         );
 
         // In hybrid mode, only apply phone limits while the value is phone-like
-        const hybridLimits = looksLikePhone(formattedNumber, countryDetails?.presentDialCode)
+        const hybridLimits = looksLikePhone(
+          formattedNumber,
+          countryDetails?.presentDialCode,
+        )
           ? phoneLimits
           : null;
-        onChange(sanitizePhoneInput(formattedNumber, inputValue, hybridLimits, isPaste));
+        onChange(
+          sanitizePhoneInput(
+            formattedNumber,
+            inputValue,
+            hybridLimits,
+            isPaste,
+          ),
+        );
       } else {
         // Handle as regular text input (username/email) – no phone limits apply
         onChange(newValue);
@@ -306,19 +343,13 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
       hideDialCode,
       phoneLimits,
       inputValue,
-    ]
+    ],
   );
 
   const handleChangeSelect = useCallback(
     (change: CountrySelectChange) => {
       if (multiCountry) {
-        const {
-          countryCode,
-          dialCode,
-          label,
-          name,
-          source,
-        } = change;
+        const { countryCode, dialCode, label, name, source } = change;
 
         // Force immediate synchronous update for instant UI feedback
         setCountryDetails({
@@ -365,7 +396,7 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
       onChangeSelect,
       hideDialCode,
       selectFieldName,
-    ]
+    ],
   );
 
   const handleClick = useCallback(
@@ -379,11 +410,11 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
         e.preventDefault();
         inputRef.current?.setSelectionRange(
           inputEl.value.length,
-          inputEl.value.length
+          inputEl.value.length,
         );
       }
     },
-    [hasNumberExceptDialCode, dialCodeLength]
+    [hasNumberExceptDialCode, dialCodeLength],
   );
 
   // Memoize moved countries from current list (minimal or full)
@@ -393,9 +424,14 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
         listToUse,
         countryMap,
         highlightCountries,
-        preferredCountries
+        preferredCountries,
       ),
-    [listToUse, countryMap, highlightCountries, preferredCountries]
+    [listToUse, countryMap, highlightCountries, preferredCountries],
+  );
+
+  const looksLikePhoneNum = looksLikePhone(
+    inputValue,
+    countryDetails.presentDialCode,
   );
 
   return {
@@ -407,6 +443,7 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
     moveKeyToTop,
     inputValue,
     isNumber,
+    looksLikePhoneNum,
     phoneLimits,
     markPaste,
     effectiveMaxLength,

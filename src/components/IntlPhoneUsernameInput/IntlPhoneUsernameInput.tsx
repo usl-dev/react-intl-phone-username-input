@@ -68,6 +68,7 @@ const IntlPhoneUsernameInput = React.forwardRef<
     moveKeyToTop,
     inputValue,
     isNumber,
+    looksLikePhoneNum,
     markPaste,
     effectiveMaxLength,
   } = useInputHook({
@@ -119,11 +120,11 @@ const IntlPhoneUsernameInput = React.forwardRef<
         forwardedRef.current = node;
       }
     },
-    [forwardedRef, inputRef]
+    [forwardedRef, inputRef],
   );
 
   const renderSelect = useMemo(() => {
-    if (!multiCountry) {
+    if (!multiCountry || (mode === "hybrid" && !looksLikePhoneNum)) {
       return null;
     }
 
@@ -146,14 +147,14 @@ const IntlPhoneUsernameInput = React.forwardRef<
           className={clsx(
             htmlSelectStyles["select-container"],
             direction === "rtl" && htmlSelectStyles.rtl,
-            htmlSelectClasses?.html_select_container
+            htmlSelectClasses?.html_select_container,
           )}
           aria-hidden="true"
         >
           <div
             className={clsx(
               htmlSelectStyles["select-wrapper"],
-              htmlSelectClasses?.select_wrapper
+              htmlSelectClasses?.select_wrapper,
             )}
             style={{ pointerEvents: "none" }}
           >
@@ -176,7 +177,7 @@ const IntlPhoneUsernameInput = React.forwardRef<
           className={clsx(
             customSelectStyles["select-container"],
             direction === "rtl" && customSelectStyles.rtl,
-            customSelectClasses?.select_container
+            customSelectClasses?.select_container,
           )}
           aria-hidden="true"
         >
@@ -185,7 +186,7 @@ const IntlPhoneUsernameInput = React.forwardRef<
             tabIndex={-1}
             className={clsx(
               customSelectStyles["select-overlay-btn"],
-              customSelectClasses?.select_overlay_btn
+              customSelectClasses?.select_overlay_btn,
             )}
             style={{ pointerEvents: "none" }}
           >
@@ -270,6 +271,8 @@ const IntlPhoneUsernameInput = React.forwardRef<
     );
   }, [
     multiCountry,
+    mode,
+    looksLikePhoneNum,
     enforceCustomSelect,
     enforceHtmlSelect,
     isMobile,
@@ -286,13 +289,17 @@ const IntlPhoneUsernameInput = React.forwardRef<
   ]);
 
   const renderFlag = useMemo(() => {
-    if (!multiCountry && enableFlag && isNumber) {
+    if (
+      !multiCountry &&
+      enableFlag &&
+      (mode === "phone" ? isNumber : looksLikePhoneNum)
+    ) {
       return (
         <div
           className={clsx(
             styles["flag-container"],
             direction === "rtl" && styles["rtl"],
-            classes?.flag_container
+            classes?.flag_container,
           )}
         >
           <Flag
@@ -309,7 +316,9 @@ const IntlPhoneUsernameInput = React.forwardRef<
   }, [
     multiCountry,
     enableFlag,
+    mode,
     isNumber,
+    looksLikePhoneNum,
     countryDetails?.code,
     direction,
     flagBaseUrl,
@@ -323,7 +332,7 @@ const IntlPhoneUsernameInput = React.forwardRef<
         styles.container,
         direction === "rtl" && styles.rtl,
         classes?.intlPhoneUsernameInputWrapper,
-        rootClassName
+        rootClassName,
       )}
     >
       {renderFlag}
@@ -341,7 +350,9 @@ const IntlPhoneUsernameInput = React.forwardRef<
         enableFlag={multiCountry ? true : enableFlag}
         markPaste={markPaste}
         {...inputProps}
-        {...(effectiveMaxLength !== undefined && { maxLength: effectiveMaxLength })}
+        {...(effectiveMaxLength !== undefined && {
+          maxLength: effectiveMaxLength,
+        })}
       />
     </div>
   );

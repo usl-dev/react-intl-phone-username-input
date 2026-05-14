@@ -9,7 +9,10 @@ export const getCountryCode = (number: string): string => {
     const asYouType = new AsYouType();
     asYouType.input(number);
     return asYouType.country ? asYouType.country : "";
-  } catch {
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[react-intl-phone-username-input] getCountryCode failed:", err);
+    }
     return "";
   }
 };
@@ -37,7 +40,10 @@ export const formatPhoneNumber = (
       : `${dialCode}${phoneNumber.replace(/[^\d]/g, "")}`;
 
     return asYouType.input(fullNumber);
-  } catch {
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[react-intl-phone-username-input] formatPhoneNumber failed:", err);
+    }
     return phoneNumber;
   }
 };
@@ -77,7 +83,10 @@ export const formatPhoneWithDialCode = (
     }
 
     return `${dialCode} ${cleanNumber}`;
-  } catch {
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[react-intl-phone-username-input] formatPhoneWithDialCode failed:", err);
+    }
     return `${dialCode} ${phoneNumber || ""}`;
   }
 };

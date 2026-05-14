@@ -35,6 +35,7 @@ const IntlPhoneUsernameInput = React.forwardRef<
     min: _min,
     type: _type,
     onChangeSelect,
+    onValidityChange,
     ...rest
   } = props;
 
@@ -81,6 +82,7 @@ const IntlPhoneUsernameInput = React.forwardRef<
     onChange,
     format,
     onChangeSelect,
+    onValidityChange,
     hideDialCode,
     selectFieldName,
   });

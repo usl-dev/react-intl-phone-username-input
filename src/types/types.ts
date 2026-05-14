@@ -3,6 +3,19 @@ type InputPassthroughProps = Omit<
   "defaultValue" | "max" | "min" | "onChange" | "type" | "value"
 >;
 
+export type PhoneValidityStatus =
+  | "valid"
+  | "too_short"
+  | "too_long"
+  | "invalid"
+  | "unknown";
+
+export type PhoneValidityState = {
+  status: PhoneValidityStatus;
+  isValid: boolean;
+  isPossible: boolean;
+};
+
 export type Mode = "phone" | "hybrid";
 export type Direction = "ltr" | "rtl";
 export type CountrySelectSource = "custom-select" | "native-select";
@@ -19,6 +32,8 @@ export type IntlPhoneUsernameInputProps = InputPassthroughProps & {
   value: string;
   onChange: (value: string) => void;
   onChangeSelect?: (change: CountrySelectChange) => void;
+  /** Called whenever the phone validity state changes. Only fires in phone mode or when the hybrid-mode value looks like a phone number. */
+  onValidityChange?: (state: PhoneValidityState) => void;
   selectFieldName?: string;
   options?: Options;
   /** Class name applied to the root wrapper (recommended for layout/overrides). */
@@ -136,6 +151,7 @@ export type ExtendedOptions = Options & {
   value: string;
   onChange: (value: string) => void;
   onChangeSelect?: (change: CountrySelectChange) => void;
+  onValidityChange?: (state: PhoneValidityState) => void;
   selectFieldName?: string;
 };
 

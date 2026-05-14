@@ -1,6 +1,6 @@
 {
   "name": "react-intl-phone-username-input",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "type": "module",
   "license": "MIT",
   "main": "./dist/index.cjs",
@@ -24,22 +24,20 @@
     "build:analyze": "vite build --mode analyze",
     "build:example": "vite build --config vite.example.config.ts",
     "preview": "vite preview --config vite.example.config.ts",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "libphonenumber-js": "^1.12.6"
   },
   "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
+    "@playwright/test": "^1.60.0",
     "@types/node": "^22.14.1",
     "@types/react": "^19.1.1",
     "@types/react-dom": "^19.1.2",
@@ -49,15 +47,13 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
     "globals": "^15.12.0",
-    "jsdom": "^28.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "rollup-plugin-visualizer": "^7.0.0",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.15.0",
     "vite": "^6.2.3",
-    "vite-plugin-dts": "^4.5.4",
-    "vitest": "^4.0.18"
+    "vite-plugin-dts": "^4.5.4"
   },
   "description": "React identity input for international phone numbers, usernames, and email-like values with country selection and RTL support",
   "keywords": [
@@ -79,7 +75,21 @@
     "react-intl-phone",
     "username-input",
     "email-input",
-    "international-phone-input"
+    "international-phone-input",
+    "react-hook-form",
+    "formik",
+    "zod",
+    "nextjs",
+    "next.js",
+    "country-select",
+    "dial-code",
+    "phone-validation",
+    "flag",
+    "country-flag",
+    "shadcn",
+    "phone-formatter",
+    "hybrid-input",
+    "informed"
   ],
   "repository": {
     "type": "git",

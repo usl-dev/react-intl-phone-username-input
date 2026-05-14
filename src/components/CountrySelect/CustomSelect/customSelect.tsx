@@ -1,4 +1,5 @@
-import React, { useId, useMemo } from "react";
+import React, { useMemo } from "react";
+import { useStableId } from "@/hooks/useStableId";
 import Flag from "@/components/Flag";
 import LazyFlag from "@/components/Flag/LazyFlag";
 import { CustomSelectProps } from "@/types/types";
@@ -45,8 +46,8 @@ const CustomSelect = (props: CustomSelectProps) => {
   });
 
   const ref = useClickOutside<HTMLDivElement>(handleClickOutside, isOpen);
-  const listboxId = useId();
-  const buttonId = useId();
+  const listboxId = useStableId();
+  const buttonId = useStableId();
 
   // Memoize the country list rendering to prevent unnecessary re-renders
 

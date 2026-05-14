@@ -2,7 +2,7 @@ import React from "react";
 import styles from "@/styles/inputField.module.css";
 import { InputFieldProps } from "@/types/types";
 import clsx from "clsx";
-import { useId } from "react";
+import { useStableId } from "@/hooks/useStableId";
 
 const InputField = (props: InputFieldProps) => {
   const {
@@ -20,7 +20,7 @@ const InputField = (props: InputFieldProps) => {
     ...rest
   } = props;
 
-  const id = useId();
+  const id = useStableId();
 
   // Extract user-supplied onPaste so we can compose it with markPaste.
   // markPaste() must fire BEFORE onChange so the paste flag is set when

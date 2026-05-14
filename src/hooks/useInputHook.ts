@@ -20,12 +20,14 @@ import {
   sanitizePhoneInput,
   looksLikePhone,
 } from "@/helpers/phoneLimits";
+import { validatePhone } from "@/helpers/validatePhone";
 import {
   ClickEvent,
   CountrySelectChange,
   CountryState,
   ExtendedOptions,
   InputEvent,
+  PhoneValidityState,
   UseInputHookReturn,
 } from "@/types/types";
 import { buildCountryMap, getMovedCountries } from "@/helpers/helpers";
@@ -42,6 +44,7 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
     onChange,
     format,
     onChangeSelect,
+    onValidityChange,
     hideDialCode,
     selectFieldName,
   } = props;
@@ -433,6 +436,38 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
     inputValue,
     countryDetails.presentDialCode,
   );
+
+  // ── Validity tracking ───────────────────────────────────────────────────────
+  const validityState = useMemo((): PhoneValidityState => {
+    const phoneActive = mobileNumberOnly || isNumber;
+    if (!phoneActive || !inputValue) {
+      return { status: "unknown", isValid: false, isPossible: false };
+    }
+    const dialPrefix = `${countryDetails.presentDialCode} `;
+    if (
+      inputValue === dialPrefix ||
+      inputValue === countryDetails.presentDialCode
+    ) {
+      return { status: "unknown", isValid: false, isPossible: false };
+    }
+    return validatePhone(inputValue, countryDetails.code);
+  }, [
+    mobileNumberOnly,
+    isNumber,
+    inputValue,
+    countryDetails.presentDialCode,
+    countryDetails.code,
+  ]);
+
+  const prevValidityKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!onValidityChange) return;
+    const key = `${validityState.status}|${validityState.isValid}|${validityState.isPossible}`;
+    if (key !== prevValidityKeyRef.current) {
+      prevValidityKeyRef.current = key;
+      onValidityChange(validityState);
+    }
+  }, [validityState, onValidityChange]);
 
   return {
     countryDetails,

@@ -32,7 +32,7 @@ Use this component when you want one reusable field that can:
 
 ## Installation
 
-Install the package. **React 18+ and React DOM 18+** are required as peer dependencies in the consuming app. `libphonenumber-js` is installed automatically with this package and will not appear in your `package.json`.
+Install the package. **React 17+ and React DOM 17+** are required as peer dependencies in the consuming app. `libphonenumber-js` is installed automatically with this package and will not appear in your `package.json`.
 
 ```bash
 # npm
@@ -48,7 +48,7 @@ pnpm add react-intl-phone-username-input
 bun add react-intl-phone-username-input
 ```
 
-**Peer dependencies:** `react` (18+) and `react-dom` (18+). Your app must have both installed.
+**Peer dependencies:** `react` (17+) and `react-dom` (17+). Your app must have both installed.
 
 ---
 
@@ -284,10 +284,11 @@ const inputRef = useRef<HTMLInputElement>(null);
 
 | Prop              | Type                      | Required | Description                                                                                                                                                                                         |
 | ----------------- | ------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `value`           | string                    | Yes      | Current input value (controlled).                                                                                                                                                                   |
-| `onChange`        | `(value: string) => void` | Yes      | Called when the value changes.                                                                                                                                                                      |
-| `onChangeSelect`  | `(change) => void`        | No       | Called with `{ countryCode, dialCode, label, name, source }` when the selected country changes.                                                                                                     |
-| `options`         | object                    | No       | Configuration; see [Options](#options-object) below. Memoize for best performance.                                                                                                                  |
+| `value`             | string                    | Yes      | Current input value (controlled).                                                                                                                                                                   |
+| `onChange`          | `(value: string) => void` | Yes      | Called when the value changes.                                                                                                                                                                      |
+| `onChangeSelect`    | `(change) => void`        | No       | Called with `{ countryCode, dialCode, label, name, source }` when the selected country changes.                                                                                                     |
+| `onValidityChange`  | `(state) => void`         | No       | Called when phone validity changes. Emits `{ status, isValid, isPossible }`. Only fires in phone mode or when the hybrid value looks like a phone number. See [Validation](#validation).            |
+| `options`           | object                    | No       | Configuration; see [Options](#options-object) below. Memoize for best performance.                                                                                                                  |
 | `className`       | string                    | No       | Class name for the root wrapper (e.g. layout or global overrides).                                                                                                                                  |
 | `selectFieldName` | string                    | No       | Field name used for the country selector. Native select uses it directly; custom select renders a hidden input with this name.                                                                      |
 | `placeholder`     | string                    | No       | Input placeholder.                                                                                                                                                                                  |
@@ -341,6 +342,140 @@ onChangeSelect={(change) => {
 - In `hybrid` mode, text like usernames and email addresses is preserved as text, while phone-like input is formatted when appropriate.
 - `defaultCountry` is optional. If omitted, the component falls back to `"IN"` unless `preferredCountries` provides the first valid country.
 - `highlightCountries` and `preferredCountries` are normalized to uppercase and invalid country codes are ignored.
+
+---
+
+## Validation
+
+### `onValidityChange` callback
+
+The component emits a `PhoneValidityState` object every time the phone validity changes. Use it to drive UI feedback without writing your own `libphonenumber-js` calls.
+
+```tsx
+import { IntlPhoneUsernameInput, type PhoneValidityState } from "react-intl-phone-username-input";
+
+function PhoneField() {
+  const [value, setValue] = useState("");
+  const [validity, setValidity] = useState<PhoneValidityState | null>(null);
+
+  return (
+    <>
+      <IntlPhoneUsernameInput
+        value={value}
+        onChange={setValue}
+        onValidityChange={setValidity}
+        options={{ mode: "phone", multiCountry: true, defaultCountry: "US" }}
+      />
+      {validity && !validity.isValid && value && (
+        <p style={{ color: "red" }}>
+          {validity.status === "too_short" && "Number is too short."}
+          {validity.status === "too_long"  && "Number is too long."}
+          {validity.status === "invalid"   && "Invalid phone number."}
+        </p>
+      )}
+    </>
+  );
+}
+```
+
+`PhoneValidityState` fields:
+
+| Field        | Type                                                         | Description                                                  |
+| ------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `status`     | `"valid"` \| `"too_short"` \| `"too_long"` \| `"invalid"` \| `"unknown"` | Granular status string.                                      |
+| `isValid`    | boolean                                                      | `true` only for fully valid numbers.                         |
+| `isPossible` | boolean                                                      | `true` if the number could become valid with more digits.    |
+
+### `validatePhone()` utility
+
+Use the standalone validator anywhere — outside a component, in custom hooks, schema libraries, or server-side code.
+
+```ts
+import { validatePhone } from "react-intl-phone-username-input";
+
+const result = validatePhone("+1 650 253 0000");
+// { status: "valid", isValid: true, isPossible: true }
+
+const short = validatePhone("+1 650");
+// { status: "too_short", isValid: false, isPossible: true }
+
+// Optional country code hint (useful for numbers without "+" prefix)
+validatePhone("09876543210", "IN");
+```
+
+---
+
+## Framework integration
+
+### react-hook-form
+
+```tsx
+import { useForm, Controller } from "react-hook-form";
+import { IntlPhoneUsernameInput, validatePhone } from "react-intl-phone-username-input";
+import "react-intl-phone-username-input/style.css";
+
+function SignupForm() {
+  const { control, handleSubmit } = useForm({ defaultValues: { phone: "" } });
+
+  return (
+    <form onSubmit={handleSubmit(console.log)}>
+      <Controller
+        name="phone"
+        control={control}
+        rules={{
+          validate: (v) => validatePhone(v).isValid || "Enter a valid phone number",
+        }}
+        render={({ field, fieldState }) => (
+          <>
+            <IntlPhoneUsernameInput
+              value={field.value}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              options={{ mode: "phone", multiCountry: true, defaultCountry: "US" }}
+              placeholder="Phone number"
+            />
+            {fieldState.error && <p>{fieldState.error.message}</p>}
+          </>
+        )}
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+### Zod + react-hook-form
+
+```ts
+import { z } from "zod";
+import { validatePhone } from "react-intl-phone-username-input";
+
+const schema = z.object({
+  phone: z
+    .string()
+    .min(1, "Phone is required")
+    .refine((v) => validatePhone(v).isValid, "Enter a valid international phone number"),
+});
+```
+
+### Formik
+
+```tsx
+import { useFormik } from "formik";
+import { validatePhone } from "react-intl-phone-username-input";
+
+const formik = useFormik({
+  initialValues: { phone: "" },
+  validate: (values) => {
+    const errors: Record<string, string> = {};
+    if (!validatePhone(values.phone).isValid) {
+      errors.phone = "Enter a valid phone number";
+    }
+    return errors;
+  },
+  onSubmit: console.log,
+});
+```
 
 ---
 
@@ -411,6 +546,40 @@ onChangeSelect={(change) => {
 | `html_select.arrow`                 | Arrow.                                |
 
 For the full pattern and recommendations, see **[docs/STYLING.md](docs/STYLING.md)**.
+
+### CSS custom properties
+
+The component exposes CSS custom properties (variables) for the most common visual customizations. Set them on your wrapper class — they cascade into the component without fighting module specificity.
+
+```css
+.my-phone-field {
+  --ripu-bg:              #0f172a;      /* container background */
+  --ripu-border-color:    #334155;      /* container border */
+  --ripu-border-radius:   4px;          /* corner radius */
+  --ripu-height:          44px;         /* container height */
+  --ripu-max-width:       420px;        /* container max-width */
+  --ripu-accent:          rgba(139, 92, 246, 0.3); /* focus ring + search underline */
+  --ripu-hover-border:    #475569;      /* border color on hover */
+  --ripu-font-size:       14px;
+  --ripu-font-weight:     400;
+  --ripu-text-color:      #f8fafc;
+  --ripu-placeholder:     #64748b;
+  --ripu-divider:         #334155;      /* separator between flag/select and input */
+  --ripu-dropdown-bg:     #1e293b;      /* dropdown panel background */
+  --ripu-dropdown-border: #334155;
+  --ripu-dropdown-max-height: 200px;
+  --ripu-option-selected-bg:    #312e81;
+  --ripu-option-selected-color: #c7d2fe;
+}
+```
+
+```tsx
+<IntlPhoneUsernameInput
+  className="my-phone-field"
+  value={value}
+  onChange={setValue}
+/>
+```
 
 ---
 

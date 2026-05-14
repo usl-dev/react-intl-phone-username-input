@@ -41,20 +41,29 @@
 
 /* Dropdown Container */
 .dropdown-container {
+    /* Inherits --ripu-* from the root .container; add dropdown-specific vars here */
+    --ripu-dropdown-bg:            white;
+    --ripu-dropdown-border:        rgba(0, 0, 0, 0.12);
+    --ripu-dropdown-radius:        var(--ripu-border-radius, 8px);
+    --ripu-dropdown-z:             1000;
+    --ripu-dropdown-max-height:    250px;
+    --ripu-option-selected-bg:     #fef9c3;
+    --ripu-option-selected-color:  #713f12;
+    --ripu-search-accent:          var(--ripu-accent, rgba(59, 130, 246, 0.1));
+
     position: absolute;
     top: 102%;
     left: 0;
     width: max-content;
     min-width: 200px;
-    background: white;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 8px;
+    background: var(--ripu-dropdown-bg);
+    border: 1px solid var(--ripu-dropdown-border);
+    border-radius: var(--ripu-dropdown-radius);
     box-shadow:
         0 4px 6px -1px rgba(0, 0, 0, 0.1),
         0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    z-index: 1000;
+    z-index: var(--ripu-dropdown-z);
     overflow: hidden;
-    /* No transitions - instant appearance */
 }
 
 /* Dropdown open state - instant visibility */
@@ -103,8 +112,8 @@
 
 .search-input:focus {
     background: white;
-    border-bottom-color: #004cff;
-    box-shadow: 0 1px 0 0 #004cff;
+    border-bottom-color: var(--ripu-search-accent, #004cff);
+    box-shadow: 0 1px 0 0 var(--ripu-search-accent, #004cff);
 }
 
 .search-input::placeholder {
@@ -115,7 +124,7 @@
     width: 100%;
     background: transparent;
     border: none;
-    max-height: 250px;
+    max-height: var(--ripu-dropdown-max-height, 250px);
     overflow-y: auto;
     overflow-x: hidden;
     padding: 4px 0;
@@ -150,8 +159,8 @@
 }
 
 .country-option.selected {
-    background: #fef9c3;
-    color: #713f12;
+    background: var(--ripu-option-selected-bg, #fef9c3);
+    color: var(--ripu-option-selected-color, #713f12);
 }
 
 .country-option.focused {

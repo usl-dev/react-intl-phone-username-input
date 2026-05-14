@@ -1,27 +1,47 @@
 .container {
+    /* ── CSS custom properties ─────────────────────────────────────────────────
+       Override these on your wrapper class (or :root) to theme the component
+       without fighting CSS module specificity.
+
+       Example:
+         .my-phone-field { --ripu-border-radius: 4px; --ripu-accent: #7c3aed; }
+    ─────────────────────────────────────────────────────────────────────────── */
+    --ripu-bg:               white;
+    --ripu-border-color:     rgba(0, 0, 0, 0.12);
+    --ripu-border-radius:    8px;
+    --ripu-height:           48px;
+    --ripu-max-width:        350px;
+    --ripu-accent:           rgba(59, 130, 246, 0.1);
+    --ripu-hover-border:     rgba(0, 0, 0, 0.2);
+    --ripu-font-size:        15px;
+    --ripu-font-weight:      500;
+    --ripu-text-color:       black;
+    --ripu-placeholder:      #9ca3af;
+    --ripu-divider:          rgba(0, 0, 0, 0.12);
+
     position: relative;
     width: 100%;
-    max-width: 350px;
-    height: 48px;
+    max-width: var(--ripu-max-width);
+    height: var(--ripu-height);
     display: flex;
     align-items: center;
-    background-color: white;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-radius: 8px;
+    background-color: var(--ripu-bg);
+    border: 1px solid var(--ripu-border-color);
+    border-radius: var(--ripu-border-radius);
     transition: box-shadow 0.15s ease-in-out;
-    box-shadow: 
+    box-shadow:
         0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .container:hover {
-    border-color: rgba(0, 0, 0, 0.2);
-    box-shadow: 
+    border-color: var(--ripu-hover-border);
+    box-shadow:
         0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
 .container:focus-within {
-    box-shadow: 
-        0 0 0 3px rgba(59, 130, 246, 0.1);
+    box-shadow:
+        0 0 0 3px var(--ripu-accent);
 }
 
 /* Container direction normalization */

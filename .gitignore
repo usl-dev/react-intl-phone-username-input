@@ -12,14 +12,10 @@ example/dist/
 
 # local npm/package testing
 .npm-cache/
-yarn-cache/
 *.tgz
 
 # logs
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
 
 # local auth / env
 .npmrc
@@ -38,3 +34,7 @@ nul
 con
 prn
 aux
+
+.claude/
+test-results/
+playwright-report/

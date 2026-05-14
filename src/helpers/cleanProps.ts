@@ -8,6 +8,7 @@ const PROPS_TO_OMIT = new Set([
   "options",
   "selectFieldName",
   "onChangeSelect",
+  "onValidityChange",
   "mode",
   "format",
   "defaultCountry",

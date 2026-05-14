@@ -66,6 +66,7 @@ const IntlPhoneUsernameInput = React.forwardRef<
     handleInputChange,
     handleChangeSelect,
     handleClick,
+    handleKeyDown,
     moveKeyToTop,
     inputValue,
     isNumber,
@@ -345,6 +346,7 @@ const IntlPhoneUsernameInput = React.forwardRef<
         handleInputChange={handleInputChange}
         inputRef={mergedInputRef}
         handleClick={handleClick}
+        handleKeyDown={handleKeyDown}
         direction={direction}
         phoneMode={mode === "phone"}
         isNumber={isNumber}

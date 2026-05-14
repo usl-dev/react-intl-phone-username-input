@@ -402,6 +402,30 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
     ],
   );
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (!mobileNumberOnly || hideDialCode) return;
+      if (e.key !== "Backspace" && e.key !== "Delete") return;
+
+      const input = e.target as HTMLInputElement;
+      const selStart = input.selectionStart ?? 0;
+      const selEnd = input.selectionEnd ?? 0;
+      const guardEnd = `${countryDetails.presentDialCode} `.length;
+
+      // Block any edit that would touch the dial code or its trailing space.
+      // Backspace at guardEnd would remove the space; Delete anywhere inside
+      // guardEnd would remove a dial code character.
+      const wouldTouchDialCode =
+        selStart < guardEnd ||
+        (e.key === "Backspace" && selStart === guardEnd && selStart === selEnd);
+
+      if (wouldTouchDialCode) {
+        e.preventDefault();
+      }
+    },
+    [mobileNumberOnly, hideDialCode, countryDetails.presentDialCode],
+  );
+
   const handleClick = useCallback(
     (e: ClickEvent) => {
       if (!hasNumberExceptDialCode) return;
@@ -475,6 +499,7 @@ const useInputHook = (props: ExtendedOptions): UseInputHookReturn => {
     handleInputChange,
     handleChangeSelect,
     handleClick,
+    handleKeyDown,
     moveKeyToTop,
     inputValue,
     isNumber,

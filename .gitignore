@@ -38,3 +38,8 @@ aux
 .claude/
 test-results/
 playwright-report/
+
+# stray temp/output files
+tmp_*.json
+*.txt
+docs/*.cjs

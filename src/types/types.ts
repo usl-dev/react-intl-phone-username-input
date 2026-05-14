@@ -95,6 +95,7 @@ export type InputFieldProps = InputPassthroughProps & {
   handleInputChange: (e: InputEvent) => void;
   inputRef: React.Ref<HTMLInputElement>;
   handleClick: (e: ClickEvent) => void;
+  handleKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   multiCountry?: boolean;
   inputValue: string;
   direction?: Direction;
@@ -160,6 +161,7 @@ export type UseInputHookReturn = {
   handleInputChange: (e: InputEvent) => void;
   inputRef: RefType;
   handleClick: (e: ClickEvent) => void;
+  handleKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   handleChangeSelect: (change: CountrySelectChange) => void;
   moveKeyToTop: Country[];
   inputValue: string;

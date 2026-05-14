@@ -9,6 +9,7 @@ const InputField = (props: InputFieldProps) => {
     handleInputChange,
     inputRef,
     handleClick,
+    handleKeyDown,
     multiCountry,
     inputValue,
     direction,
@@ -50,6 +51,7 @@ const InputField = (props: InputFieldProps) => {
       value={inputValue}
       onChange={handleInputChange}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
       onPaste={handlePaste}
       dir={direction}
       inputMode={phoneMode ? "numeric" : "text"}

@@ -2,6 +2,8 @@
 
 A React component for international phone numbers and usernames (e.g. email) in one field. Supports 240+ countries, optional country selector, phone formatting, RTL, and is built for performance with lazy loading and code-splitting.
 
+![Preview](https://raw.githubusercontent.com/usl-dev/react-intl-phone-username-input/main/docs/preview.png)
+
 ---
 
 ## Features

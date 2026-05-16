@@ -56,9 +56,9 @@ bun add react-intl-phone-username-input
 
 ## Live demo
 
-Try the component in StackBlitz:
+Try the component in the interactive playground:
 
-- **Interactive demo:** https://stackblitz.com/github/usl-dev/react-intl-phone-username-input
+- **Interactive demo:** https://usl-dev.github.io/react-intl-phone-username-input/
 
 More detailed specs, usage scenarios, and option behavior are documented at:
 

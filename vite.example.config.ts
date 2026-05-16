@@ -2,7 +2,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === "build" ? "/react-intl-phone-username-input/" : "/",
   root: path.resolve(__dirname, "example"),
   plugins: [react()],
   resolve: {
@@ -14,4 +15,4 @@ export default defineConfig({
     outDir: "dist", // <— keeps it safely inside example/
     emptyOutDir: true,
   },
-});
+}));
